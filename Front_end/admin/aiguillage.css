@@ -1,0 +1,204 @@
+/* ==========================================================================
+   VARIABLES ET STYLE DE BASE
+   ========================================================================== */
+:root {
+    --primary-blue: #0d3b66;
+    --accent-orange: #ea580c;
+    --accent-green: #059669;
+    --light-bg: #f4f7f6;
+    --border-color: #e2e8f0;
+}
+
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--light-bg); margin: 0; padding: 0; color: #334155; }
+
+/* --- NAVBAR --- */
+.navbar { background: var(--primary-blue); color: white; padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+.nav-left { display: flex; align-items: center; gap: 15px; }
+.nav-logo { width: 45px; }
+.nav-brand h1 { font-size: 1.2rem; margin: 0; }
+.nav-brand p { font-size: 0.75rem; opacity: 0.8; margin: 0; }
+.nav-right { display: flex; align-items: center; gap: 30px; }
+.admin-nav { display: flex; gap: 20px; }
+.admin-nav a { color: white; text-decoration: none; opacity: 0.7; font-weight: 500; transition: 0.3s; }
+.admin-nav a.active { opacity: 1; border-bottom: 2px solid white; }
+.user-profile { display: flex; align-items: center; gap: 10px; font-weight: 600; }
+.btn-logout-small { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.3); color: white; padding: 8px 12px; border-radius: 5px; cursor: pointer; }
+.btn-logout-small:hover { background: #dc2626; border-color: #dc2626; }
+
+/* --- DASHBOARD LAYOUT --- */
+.dashboard-container { max-width: 1100px; margin: 30px auto; padding: 0 20px; }
+
+/* --- GRILLES & CARTES --- */
+.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px; }
+.stat-card { background: white; padding: 20px; border-radius: 8px; border: 1px solid var(--border-color); text-align: center; }
+.stat-card.blue { border-top: 5px solid var(--primary-blue); }
+.stat-card.orange { border-top: 5px solid var(--accent-orange); }
+.stat-card.green { border-top: 5px solid var(--accent-green); }
+
+.admin-controls { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 30px; }
+.control-card { background: white; padding: 20px; border-radius: 8px; border: 1px solid var(--border-color); }
+.input-group { display: flex; gap: 10px; margin-top: 10px; }
+.input-group input { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+.btn-action-sm { background: var(--primary-blue); color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; }
+
+/* --- TABLEAU --- */
+.table-section { background: white; padding: 20px; border-radius: 8px; border: 1px solid var(--border-color); }
+table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+th, td { padding: 15px; border-bottom: 1px solid var(--border-color); text-align: left; }
+th { background-color: #f8fafc; font-size: 0.85rem; text-transform: uppercase; }
+.status { padding: 5px 10px; border-radius: 15px; font-size: 0.8rem; font-weight: 600; }
+.status.pending { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
+.btn-action { background: var(--primary-blue); color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.85rem; }
+
+/* --- MODALE --- */
+.logout-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 9999; }
+.logout-modal-content { background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 400px; text-align: center; }
+.logout-modal-actions { display: flex; gap: 15px; justify-content: center; margin-top: 25px; }
+.btn-modal-confirm { background: #dc2626; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; }
+.btn-modal-cancel { background: #e2e8f0; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+
+/* ==========================================================================
+   ADAPTATION RESPONSIVE (Tous écrans)
+   ========================================================================== */
+
+/* 1. Tablettes et écrans moyens (jusqu'à 992px) */
+@media (max-width: 992px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .admin-controls { grid-template-columns: 1fr; }
+}
+
+/* 2. Smartphones et petits écrans (jusqu'à 768px) */
+@media (max-width: 768px) {
+    /* Navbar : Passage en colonne pour éviter que le texte ne dépasse */
+    .navbar { padding: 15px 20px; flex-direction: column; gap: 15px; }
+    .nav-right { width: 100%; justify-content: space-between; }
+    .admin-nav { gap: 10px; font-size: 0.85rem; }
+    
+    /* Stats : Empilement vertical */
+    .stats-grid { grid-template-columns: 1fr; }
+    
+    /* Panneau de contrôle : Boutons en pleine largeur */
+    .input-group { flex-direction: column; }
+    
+    /* Tableau : Rendu horizontalement scrollable */
+    .table-responsive { 
+        width: 100%; 
+        overflow-x: auto; 
+        -webkit-overflow-scrolling: touch; 
+    }
+    
+    /* Masquage des éléments secondaires pour gagner de la place */
+    .nav-brand p { display: none; }
+}
+.modal-select { width: 100%; padding: 12px; margin: 20px 0; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; }
+.btn-action { background: var(--primary-blue); color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.85rem; border: none; cursor: pointer; }
+.btn-action:hover { background: #1a5a96; }
+
+/* ==========================================================================
+   STYLE AIGUILLAGE AMÉLIORÉ
+   ========================================================================== */
+
+/* Panneau de filtres */
+.filters-section { 
+    display: grid; 
+    grid-template-columns: 1fr 2fr; 
+    gap: 20px; 
+    margin-bottom: 30px; 
+}
+
+.filter-card { 
+    background: white; 
+    padding: 25px; 
+    border-radius: 10px; 
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+/* Titre interne aux cartes */
+.filter-card h3 {
+    margin-top: 0;
+    font-size: 1rem;
+    color: var(--primary-blue);
+    border-bottom: 2px solid var(--light-bg);
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+/* Style des champs (Inputs & Selects) */
+.input-group { 
+    display: flex; 
+    gap: 12px; 
+    margin-top: 10px; 
+    align-items: center;
+}
+
+.input-group select, 
+.input-group input { 
+    padding: 12px 15px; 
+    border: 1px solid #cbd5e1; 
+    border-radius: 6px; 
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    background-color: #f8fafc;
+}
+
+/* Effet au survol et focus */
+.input-group select:focus, 
+.input-group input:focus { 
+    outline: none;
+    border-color: var(--primary-blue);
+    background-color: white;
+    box-shadow: 0 0 0 3px rgba(13, 59, 102, 0.1);
+}
+
+/* Assignation de poids flex */
+.input-group select { flex: 1; min-width: 150px; }
+.input-group input { flex: 2; }
+
+/* Bouton d'action principal */
+.btn-assign { 
+    background: var(--accent-orange); /* Changement pour orange pour contraster */
+    color: white; 
+    border: none; 
+    padding: 12px 20px; 
+    border-radius: 6px; 
+    cursor: pointer; 
+    font-weight: 600;
+    transition: background 0.3s;
+}
+.btn-assign:hover { background: #c2410c; }
+
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
+@media (max-width: 768px) {
+    .filters-section { grid-template-columns: 1fr; }
+    .input-group { flex-direction: column; align-items: stretch; }
+    .btn-assign { width: 100%; }
+}
+/* Effet de survol minimaliste */
+.admin-nav a {
+    transition: opacity 0.3s ease; /* Seule l'opacité change */
+}
+
+.admin-nav a:hover {
+    opacity: 1 !important; /* Rend le lien opaque au survol */
+}
+
+.btn-logout-small {
+    transition: background-color 0.3s ease;
+}
+
+.btn-logout-small:hover {
+    background-color: #dc2626 !important; /* Change uniquement la couleur */
+}
+.btn-action-green { 
+    background: #059669; /* Vert */
+    color: white; 
+    padding: 8px 15px; 
+    border-radius: 4px; 
+    border: none; 
+    cursor: pointer; 
+    font-weight: 500;
+}
+.btn-action-green:hover { background: #047857; }

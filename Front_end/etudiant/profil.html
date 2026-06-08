@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil Étudiant - ULPGL Recours</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="profil.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+<header class="navbar">
+    <div class="nav-left">
+        <img src="../assets/logo-ulpgl.png" alt="Logo ULPGL" class="nav-logo">
+        <div class="nav-brand">
+            <h1>ULPGL-Goma</h1>
+            <p>Gestion des Recours Académiques</p>
+        </div>
+    </div>
+    <div class="nav-right">
+        <nav class="admin-nav" style="margin-right: 20px;">
+            <a href="dashboard.html" style="color: white; text-decoration: none; font-weight: 500;">
+                <i class="fa-solid fa-arrow-left"></i> Retour au Dashboard
+            </a>
+        </nav>
+
+        <div class="user-profile">
+            <i class="fa-solid fa-circle-user profile-icon"></i>
+            <div class="user-info">
+                <span class="user-name">Jérémie NGBAPE</span>
+                <span class="user-role">Matricule : 23312</span>
+            </div>
+        </div>
+        
+        <a href="#" class="btn-logout" id="logoutTrigger" title="Se déconnecter">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+        </a>
+    </div>
+</header>
+
+    <div class="dashboard-container">
+        <section class="profile-section">
+            <h3 class="section-title"><i class="fa-solid fa-lock"></i> Sécurité du compte</h3>
+            
+            <div class="input-wrapper">
+                <label>Mot de passe actuel</label>
+                <input type="password" id="pass1" placeholder="••••••••">
+                <i class="fa-solid fa-eye toggle-password" onclick="togglePass('pass1', this)"></i>
+            </div>
+            
+            <div class="input-wrapper">
+                <label>Nouveau mot de passe</label>
+                <input type="password" id="pass2" placeholder="••••••••">
+                <i class="fa-solid fa-eye toggle-password" onclick="togglePass('pass2', this)"></i>
+            </div>
+
+            <div class="input-wrapper">
+                <label>Confirmer le nouveau mot de passe</label>
+                <input type="password" id="pass3" placeholder="••••••••">
+                <i class="fa-solid fa-eye toggle-password" onclick="togglePass('pass3', this)"></i>
+            </div>
+
+            <button class="btn-save">Enregistrer les modifications</button>
+        </section>
+    </div>
+
+    <div id="logoutModal" class="logout-modal">
+        <div class="logout-modal-content">
+            <div class="logout-modal-icon"><i class="fa-solid fa-arrow-right-from-bracket"></i></div>
+            <h3>Confirmation</h3>
+            <p>Voulez-vous vraiment vous déconnecter ?</p>
+            <div class="logout-modal-actions">
+                <button type="button" class="btn-modal-cancel" id="btnCancelLogout">Annuler</button>
+                <a href="../login.html" class="btn-modal-confirm">Se déconnecter</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>

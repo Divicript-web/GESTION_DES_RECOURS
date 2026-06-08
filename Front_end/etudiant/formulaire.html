@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dépôt de Recours - ULPGL</title>
+    <link rel="stylesheet" href="formulaire.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="nav-left">
+            <img src="../assets/logo-ulpgl.png" alt="Logo ULPGL" class="nav-logo">
+            <div class="nav-brand"><h1>ULPGL-Goma</h1><p>Gestion des Recours</p></div>
+        </div>
+        <div class="nav-right">
+            <div class="user-info">
+                <span class="user-name">Jérémie NGBAPE</span>
+                <span class="user-role">Matricule : 23312</span>
+            </div>
+            <a href="logout.html" class="btn-logout"><i class="fa-solid fa-right-from-bracket"></i></a>
+        </div>
+    </header>
+
+    <div class="form-container">
+        <div class="back-nav-container">
+            <a href="dashboard.html" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Retour au tableau de bord</a>
+        </div>
+
+        <main class="form-card">
+            <div class="form-card-header">
+                <h2><i class="fa-solid fa-pen-to-square"></i> Nouveau Recours Académique</h2>
+            </div>
+
+            <div class="note-box">
+                <h3><i class="fa-solid fa-triangle-exclamation"></i> NB : À lire avant de remplir</h3>
+                <ul>
+                    <li>Lisez très bien avant de remplir la fiche. Si vous remplissez mal cette fiche, votre recours ne sera pas pris en compte.</li>
+                    <li>Le recours est recevable si et seulement si l'étudiant a fait l'évaluation (interro, TD, TP ou examen).</li>
+                    <li>S'il s'agit du TP, TD ou Interrogation, il est conseillé de joindre une preuve (copie, etc.).</li>
+                    <li>Si vous étiez en groupe, mentionnez les noms de vos partenaires dans la section "Justification détaillée".</li>
+                    <li>Ajoutez jusqu'à 4 cours maximum.</li>
+                    <li>Cochez les types d'évaluations concernés par cours.</li>
+                </ul>
+            </div>
+
+            <form id="recoursForm">
+                <div id="coursesContainer">
+                    <div class="course-block" id="block-1">
+                        <h4 class="block-title"><i class="fa-solid fa-book"></i> Cours 1</h4>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Cours concerné</label>
+                                <select class="course-select" required>
+                                    <option value="ECO-312">ECO-312 : Macroéconomie</option>
+                                    <option value="INFO-315">INFO-315 : Bases de Données</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Type d'évaluation</label>
+                                <div class="eval-checkboxes">
+                                    <label><input type="checkbox" value="TP"> TP</label>
+                                    <label><input type="checkbox" value="TD"> TD</label>
+                                    <label><input type="checkbox" value="INTERRO"> Interro</label>
+                                    <label><input type="checkbox" value="EXAMEN"> Examen</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Justification détaillée</label>
+                            <textarea class="details-input" rows="5" placeholder="Expliquez les raisons, nommez vos partenaires de groupe et précisez les questions contestées." required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Pièce jointe (Preuve)</label>
+                            <div class="file-drop-zone" onclick="this.querySelector('input').click()">
+                                <i class="fa-solid fa-cloud-arrow-up"></i>
+                                <input type="file" class="file-input" hidden accept=".pdf,.jpg,.png">
+                                <span class="file-label-text">Choisir un fichier (PDF/Image, max 5Mo)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button" id="addCourseBtn" class="btn-add"><i class="fa-solid fa-plus"></i> Ajouter un autre cours</button>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel" onclick="history.back()">Annuler</button>
+                    <button type="submit" class="btn-submit">Soumettre le recours</button>
+                </div>
+            </form>
+        </main>
+    </div>
+    <!-- MODALE : Déconnexion -->
+    <div id="logoutModal" class="logout-modal">
+        <div class="logout-modal-content">
+            <div class="logout-modal-icon"><i class="fa-solid fa-arrow-right-from-bracket"></i></div>
+            <h3>Confirmation</h3>
+            <p>Voulez-vous vraiment vous déconnecter ?</p>
+            <div class="logout-modal-actions">
+                <button type="button" class="btn-modal-cancel" id="btnCancelLogout">Annuler</button>
+                <a href="../login.html" class="btn-modal-confirm">Se déconnecter</a>
+            </div>
+        </div>
+    </div>
+    <script src="formulaire.js"></script>
+</body>
+</html>

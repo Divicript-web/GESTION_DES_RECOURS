@@ -1,0 +1,41 @@
+/* --- STYLE SPÉCIFIQUE COURS --- */
+.modal-select { 
+    width: 100%; 
+    padding: 12px; 
+    margin: 10px 0; 
+    border: 1px solid #cbd5e1; 
+    border-radius: 5px; 
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+/* Alignement des boutons dans la modale */
+.logout-modal-actions { 
+    display: flex; 
+    gap: 15px; 
+    justify-content: flex-end; 
+    margin-top: 25px; 
+}
+
+/* Boutons */
+.btn-modal-confirm { 
+    background: #059669; 
+    color: white; 
+    border: none; 
+    padding: 10px 20px; 
+    border-radius: 5px; 
+    cursor: pointer; 
+    font-weight: 600;
+}
+.btn-modal-cancel { 
+    background: #e2e8f0; 
+    border: none; 
+    padding: 10px 20px; 
+    border-radius: 5px; 
+    cursor: pointer; 
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .logout-modal-content { width: 95% !important; }
+}

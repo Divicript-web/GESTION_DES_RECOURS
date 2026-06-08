@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historique - Espace Enseignant</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="nav-left">
+            <img src="../assets/logo-ulpgl.png" alt="Logo ULPGL" class="nav-logo">
+            <div class="nav-brand">
+                <h1>ULPGL-Goma</h1>
+                <p>Espace Enseignant</p>
+            </div>
+        </div>
+        <div class="nav-right">
+            <nav class="admin-nav">
+                <a href="dashboard.html">Dashboard</a>
+                <a href="historique.html" class="active">Historique</a>
+                <a href="cours.html">Mes Cours</a>
+                <a href="profil.html">Profil</a>
+            </nav>
+            <div class="user-profile">
+                <i class="fa-solid fa-chalkboard-user"></i>
+                <span>Prof. KASONGO</span>
+                <button type="button" id="logoutTrigger" class="btn-logout-small" title="Se déconnecter">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="dashboard-container">
+        <section class="table-section">
+            <h3>Mes décisions passées</h3>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Matricule</th>
+                            <th>Étudiant</th>
+                            <th>Cours</th>
+                            <th>Verdict</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>23312</td>
+                            <td>NGBAPE Jérémie</td>
+                            <td>INFO-315</td>
+                            <td><span class="status green">Fondé</span></td>
+                            <td>05/06/2026</td>
+                            <td><button class="btn-action">Détails</button></td>
+                        </tr>
+                        <tr>
+                            <td>23450</td>
+                            <td>KABUYA Sarah</td>
+                            <td>INFO-315</td>
+                            <td><span class="status red">Non fondé</span></td>
+                            <td>04/06/2026</td>
+                            <td><button class="btn-action">Détails</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <div id="logoutModal" class="logout-modal">
+        <div class="logout-modal-content">
+            <i class="fa-solid fa-arrow-right-from-bracket" style="font-size: 2rem; color: #dc2626; margin-bottom: 15px;"></i>
+            <h3>Confirmation</h3>
+            <p>Voulez-vous vraiment vous déconnecter de votre session ?</p>
+            <div class="logout-modal-actions">
+                <button type="button" class="btn-modal-cancel" id="btnCancelLogout">Annuler</button>
+                <a href="../login.html" class="btn-modal-confirm">Se déconnecter</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>

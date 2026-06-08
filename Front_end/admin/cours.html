@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administration - Cours</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="cours.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="nav-left">
+            <img src="../assets/logo-ulpgl.png" alt="Logo ULPGL" class="nav-logo">
+            <div class="nav-brand"><h1>ULPGL-Goma</h1><p>Gestion des Cours</p></div>
+        </div>
+        <div class="nav-right">
+            <nav class="admin-nav">
+                <a href="dashboard.html">Dashboard</a>
+                <a href="utilisateurs.html">Utilisateurs</a>
+                <a href="cours.html" class="active">Cours</a>
+                <a href="aiguillage.html">Aiguillage</a>
+            </nav>
+            <div class="user-profile">
+                <i class="fa-solid fa-user-shield"></i>
+                <span>Admin</span>
+                <button type="button" id="logoutTrigger" class="btn-logout-small"><i class="fa-solid fa-right-from-bracket"></i></button>
+            </div>
+        </div>
+    </header>
+
+    <div class="dashboard-container">
+        <section class="admin-controls">
+            <div class="control-card">
+                <h3><i class="fa-solid fa-filter"></i> Recherche</h3>
+                <div class="input-group">
+                    <input type="text" id="searchCours" placeholder="Code ou nom du cours...">
+                    <button class="btn-action-sm">Rechercher</button>
+                </div>
+            </div>
+            <div class="control-card">
+                <button class="btn-action" style="width: 100%; padding: 15px;" onclick="openCoursModal()">
+                    <i class="fa-solid fa-plus"></i> Ajouter un cours
+                </button>
+            </div>
+        </section>
+
+        <section class="table-section">
+            <h3>Liste des enseignements</h3>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr><th>Code</th><th>Intitulé</th><th>Crédits</th><th>Département</th><th>Action</th></tr>
+                    </thead>
+                    <tbody id="cours-body">
+                        </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+    <div id="coursModal" class="logout-modal">
+    <div class="logout-modal-content" style="max-width: 600px; text-align: left;">
+        <h3>Nouveau Cours</h3>
+        
+        <div class="form-grid">
+            <input type="text" id="codeCours" placeholder="Code du cours (ex: INF101)" class="modal-select">
+            <input type="text" id="nomCours" placeholder="Nom complet du cours" class="modal-select">
+            <input type="number" id="creditsCours" placeholder="Nombre de crédits" class="modal-select">
+            <select id="deptCours" class="modal-select">
+                <option value="">Département</option>
+                <option value="info">Informatique</option>
+                <option value="eco">Économie</option>
+            </select>
+        </div>
+
+        <div class="form-grid">
+            <input type="text" id="ensResponsable" placeholder="Enseignant responsable" class="modal-select">
+            <input type="text" id="promosCours" placeholder="Promotions (ex: L1, L2)" class="modal-select">
+        </div>
+        
+        <div class="logout-modal-actions">
+            <button class="btn-modal-cancel" id="btnCancelCours">Annuler</button>
+            <button class="btn-modal-confirm" id="btnSaveCours">Enregistrer</button>
+        </div>
+    </div>
+    </div>
+
+    <script src="cours.js"></script>
+</body>
+</html>

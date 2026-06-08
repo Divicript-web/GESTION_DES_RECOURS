@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administration - Aiguillage</title>
+    <link rel="stylesheet" href="aiguillage.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="nav-left">
+            <img src="../assets/logo-ulpgl.png" alt="Logo ULPGL" class="nav-logo">
+            <div class="nav-brand">
+                <h1>ULPGL-Goma</h1>
+                <p>Espace Administration</p>
+            </div>
+        </div>
+        <div class="nav-right">
+            <nav class="admin-nav">
+                <a href="dashboard.html">Dashboard</a>
+                <a href="utilisateurs.html">Utilisateurs</a>
+                <a href="cours.html">Cours</a>
+                <a href="aiguillage.html" class="active">Aiguillage</a>
+            </nav>
+            <div class="user-profile">
+                <i class="fa-solid fa-user-shield"></i>
+                <span>Admin</span>
+                <button type="button" id="logoutTrigger" class="btn-logout-small"><i class="fa-solid fa-right-from-bracket"></i></button>
+            </div>
+        </div>
+    </header>
+
+    <div class="dashboard-container">
+        
+        <section class="table-section">
+            <h3>1. Recours en attente d'assignation</h3>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Matricule</th>
+                            <th>Étudiant</th>
+                            <th>Cours</th>
+                            <th>Statut</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="to-assign-body">
+                        <tr>
+                            <td>23312</td>
+                            <td>NGBAPE Jérémie</td>
+                            <td>INFO-315</td>
+                            <td><span class="status pending">À assigner</span></td>
+                            <td><button class="btn-action" onclick="openAssignModal(23312)">Assigner</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="table-section" style="margin-top: 40px;">
+            <h3>2. Recours traités (Prêts à publier)</h3>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Matricule</th>
+                            <th>Étudiant</th>
+                            <th>Cours</th>
+                            <th>Décision Prof</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="to-publish-body">
+                        <tr>
+                            <td>23312</td>
+                            <td>NGBAPE Jérémie</td>
+                            <td>INFO-315</td>
+                            <td><strong>Fondé</strong> - Note révisée à 15/20</td>
+                            <td><button class="btn-action-green" onclick="publishResult(23312)">Publier à l'étudiant</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <div id="assignModal" class="logout-modal">
+        <div class="logout-modal-content">
+            <h3>Assigner au Professeur</h3>
+            <select id="profSelect" class="modal-select">
+                <option>Sélectionner un enseignant...</option>
+                <option>Prof. Dr. KASONGO</option>
+                <option>CT. MWENYEMALI</option>
+            </select>
+            <div class="logout-modal-actions">
+                <button class="btn-modal-cancel" id="btnCancelAssign">Annuler</button>
+                <button class="btn-modal-confirm">Confirmer</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="logoutModal" class="logout-modal">
+        <div class="logout-modal-content">
+            <i class="fa-solid fa-arrow-right-from-bracket" style="font-size: 2rem; color: #dc2626; margin-bottom: 15px;"></i>
+            <h3>Confirmation</h3>
+            <p>Voulez-vous vraiment vous déconnecter ?</p>
+            <div class="logout-modal-actions">
+                <button class="btn-modal-cancel" id="btnCancelLogout">Annuler</button>
+                <a href="../login.html" class="btn-modal-confirm">Se déconnecter</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="aiguillage.js"></script>
+</body>
+</html>

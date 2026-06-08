@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administration - Utilisateurs</title>
+    <link rel="stylesheet" href="utilisateurs.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="nav-left">
+            <img src="../assets/logo-ulpgl.png" alt="Logo ULPGL" class="nav-logo">
+            <div class="nav-brand"><h1>ULPGL-Goma</h1><p>Espace Administration</p></div>
+        </div>
+        <div class="nav-right">
+            <nav class="admin-nav">
+                <a href="dashboard.html">Dashboard</a>
+                <a href="utilisateurs.html" class="active">Utilisateurs</a>
+                <a href="cours.html">Cours</a>
+                <a href="aiguillage.html">Aiguillage</a>
+            </nav>
+            <div class="user-profile">
+                <i class="fa-solid fa-user-shield"></i>
+                <span>Admin</span>
+                <button type="button" id="logoutTrigger" class="btn-logout-small"><i class="fa-solid fa-right-from-bracket"></i></button>
+            </div>
+        </div>
+    </header>
+
+    <div class="dashboard-container">
+        <section class="admin-controls">
+            <div class="control-card">
+                <h3><i class="fa-solid fa-filter"></i> Filtrer les comptes</h3>
+                <div class="filter-group">
+                    <button class="btn-filter active" onclick="filterUsers('tous')">Tous</button>
+                    <button class="btn-filter" onclick="filterUsers('etudiant')">Étudiants</button>
+                    <button class="btn-filter" onclick="filterUsers('enseignant')">Professeurs</button>
+                </div>
+            </div>
+            
+            <div class="control-card">
+                <h3><i class="fa-solid fa-search"></i> Recherche</h3>
+                <div class="input-group">
+                    <input type="text" id="searchInput" placeholder="Matricule ou nom...">
+                    <button class="btn-action-sm">Rechercher</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="table-section">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                <h3>Liste des comptes utilisateurs</h3>
+                <button class="btn-action" onclick="openUserModal()">
+                    <i class="fa-solid fa-user-plus"></i> Ajouter un utilisateur
+                </button>
+            </div>
+            
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Matricule</th>
+                            <th>Nom complet</th>
+                            <th>Rôle</th>
+                            <th>Action</th>
+                            <th>Sécurité</th>
+                        </tr>
+                    </thead>
+                    <tbody id="user-body">
+                        <tr>
+                            <td>23312</td>
+                            <td>NGBAPE Jérémie</td>
+                            <td><span class="status">Étudiant</span></td>
+                            <td><button class="btn-action-sm">Modifier</button></td>
+                            <td>
+                                <button class="btn-reset" onclick="resetPassword(23312)">
+                                    <i class="fa-solid fa-key"></i> Reset
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <div id="userModal" class="logout-modal">
+        <div class="logout-modal-content" style="max-width: 600px; text-align: left;">
+            <h3>Nouvel utilisateur</h3>
+            <div class="form-grid">
+                <input type="text" id="nom" placeholder="Nom" class="modal-select">
+                <input type="text" id="postnom" placeholder="Post-nom" class="modal-select">
+                <input type="text" id="prenom" placeholder="Prénom" class="modal-select">
+                <input type="text" id="matricule" placeholder="Matricule" class="modal-select">
+            </div>
+
+            <select id="roleSelector" class="modal-select" onchange="toggleFields()">
+                <option value="etudiant">Étudiant</option>
+                <option value="enseignant">Enseignant</option>
+            </select>
+
+            <div id="fieldsEtudiant" class="form-grid">
+                <input type="text" id="etudiantDept" placeholder="Département" class="modal-select">
+                <input type="text" id="etudiantPromo" placeholder="Promotion" class="modal-select">
+            </div>
+
+            <div id="fieldsEnseignant" class="form-grid" style="display:none;">
+                <input type="text" id="ensCours" placeholder="Cours dispensés" class="modal-select">
+                <input type="text" id="ensPromos" placeholder="Promotions" class="modal-select">
+                <input type="text" id="ensDept" placeholder="Départements" class="modal-select">
+                <input type="number" id="ensCredits" placeholder="Crédits" class="modal-select">
+            </div>
+
+            <div class="logout-modal-actions">
+                <button class="btn-modal-cancel" id="btnCancelUser">Annuler</button>
+                <button class="btn-modal-confirm" id="btnSaveUser">Enregistrer</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="utilisateurs.js"></script>
+</body>
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de Bord - ULPGL Recours</title>
+    <!-- Lien vers les styles CSS -->
+    <link rel="stylesheet" href="dashboard.css">
+    <!-- Intégration de FontAwesome pour les icônes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- BARRE DE NAVIGATION : Structure haut de page -->
+    <header class="navbar">
+        <div class="nav-left">
+            <img src="../assets/logo-ulpgl.png" alt="Logo ULPGL" class="nav-logo">
+            <div class="nav-brand">
+                <h1>ULPGL-Goma</h1>
+                <p>Gestion des Recours Académiques</p>
+            </div>
+        </div>
+        <div class="nav-right">
+            <!-- Profil utilisateur : affichage dynamique -->
+            <div class="user-profile">
+            <a href="profil.html" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 12px;">
+                <i class="fa-solid fa-circle-user profile-icon"></i>
+                <div class="user-info">
+                    <span class="user-name">Jérémie NGBAPE</span>
+                    <span class="user-role">Matricule : 23312</span>
+                </div>
+            </a>
+        </div>
+            <!-- Trigger de déconnexion -->
+            <a href="#" class="btn-logout" id="logoutTrigger" title="Se déconnecter">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            </a>
+        </div>
+    </header>
+
+    <div class="dashboard-container">
+        
+        <!-- BANNIÈRE D'ANNONCE : Communication du décanat -->
+        <div class="announcement-banner">
+            <div class="banner-icon"><i class="fa-solid fa-bullhorn"></i></div>
+            <div class="banner-text">
+                <strong>Message du Décanat :</strong> La session des recours est ouverte du 25 mai au 05 juin 2026.
+            </div>
+        </div>
+        
+        <!-- EN-TÊTE : Titre et bouton d'action principal -->
+        <section class="dashboard-header">
+            <div class="welcome-text">
+                <h2>Mon Tableau de Bord</h2>
+                <p>Suivez l'état de vos demandes de recours en temps réel.</p>
+            </div>
+            <!-- Lien vers le formulaire de dépôt -->
+            <button class="btn-new-recours" onclick="window.location.href='formulaire.html'">
+                <i class="fa-solid fa-plus"></i>
+                <span>Déposer un nouveau recours</span>
+            </button>
+        </section>
+
+        <!-- STATISTIQUES : Grille récapitulative -->
+        <section class="stats-grid">
+            <div class="stat-card blue">
+                <div class="stat-icon"><i class="fa-solid fa-folder-open"></i></div>
+                <div class="stat-data">
+                    <h3>3</h3>
+                    <p>Total Recours</p>
+                </div>
+            </div>
+            <div class="stat-card orange">
+                <div class="stat-icon"><i class="fa-solid fa-clock"></i></div>
+                <div class="stat-data">
+                    <h3>1</h3>
+                    <p>En attente</p>
+                </div>
+            </div>
+            <div class="stat-card green">
+                <div class="stat-icon"><i class="fa-solid fa-circle-check"></i></div>
+                <div class="stat-data">
+                    <h3>2</h3>
+                    <p>Recours Validés</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- TABLEAU : Historique détaillé -->
+        <section class="table-section">
+            <div class="table-header">
+                <h3><i class="fa-solid fa-list"></i> Historique de mes demandes</h3>
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Code Cours</th>
+                            <th>Intitulé du Cours</th>
+                            <th>Date de Dépôt</th>
+                            <th>Statut</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><b>INFO-315</b></td>
+                            <td>Bases de Données Relationnelles</td>
+                            <td>24/05/2026</td>
+                            <td><span class="status-badge pending">En attente</span></td>
+                            <td><button class="btn-view" title="Détails"><i class="fa-solid fa-eye"></i></button></td>
+                        </tr>
+                        <!-- Lignes supplémentaires -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <!-- MODALE : Déconnexion -->
+    <div id="logoutModal" class="logout-modal">
+        <div class="logout-modal-content">
+            <div class="logout-modal-icon"><i class="fa-solid fa-arrow-right-from-bracket"></i></div>
+            <h3>Confirmation</h3>
+            <p>Voulez-vous vraiment vous déconnecter ?</p>
+            <div class="logout-modal-actions">
+                <button type="button" class="btn-modal-cancel" id="btnCancelLogout">Annuler</button>
+                <a href="../login.html" class="btn-modal-confirm">Se déconnecter</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts JavaScript -->
+    <script src="dashboard.js"></script>
+</body>
+</html>

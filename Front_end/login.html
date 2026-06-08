@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion - Gestion des Recours ULPGL</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <main class="login-container">
+        <section class="login-left">
+            <div class="overlay"></div>
+            <svg class="curve-divider" viewBox="0 0 100 100" preserveAspectRatio="none">
+                <path d="M100,0 Q20,50 100,100 Z" fill="#ffffff"></path>
+            </svg>
+            
+            <div class="institution-content">
+                <div class="ulpgl-brand-banner">
+                    <img src="assets/logo-ulpgl.png" alt="Logo ULPGL" class="university-logo">
+                    <div class="brand-vertical-divider"></div>
+                    <div class="brand-text-block">
+                        <h1 class="univ-title">Université Libre des Pays des Grands Lacs</h1>
+                        <h2 class="univ-sub">ULPGL - Goma</h2>
+                    </div>
+                </div>
+                <div class="horizontal-divider"></div>
+                <h3 class="faculty-title">Faculté des Sciences Économiques et de Gestion</h3>
+                <p class="app-sub">Système Intégré de Gestion des Recours Académiques</p>
+            </div>
+        </section>
+
+        <section class="login-right">
+            <div class="form-box">
+                <div class="form-header">
+                    <h2>Bienvenue</h2>
+                    <p>Veuillez introduire vos informations pour accéder à votre espace.</p>
+                    <p style="font-size: 0.85rem; color: #555; margin-top: 10px;">
+                        Mot de passe par défaut : <strong>ULPGL2026</strong>
+                    </p>
+                </div>
+
+                <div class="alert-danger" id="loginAlert" style="display: none;">
+                    <i class="fa-solid fa-triangle-exclamation"></i> Matricule ou mot de passe incorrect.
+                </div>
+
+                <form id="loginForm">
+                    <div class="input-group">
+                        <label for="username">Numéro Matricule</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-id-card input-icon"></i>
+                            <input type="text" id="username" placeholder="Ex: 00000" required>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="password">Mot de passe</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-lock input-icon"></i>
+                            <input type="password" id="password" placeholder="*******" required>
+                            <i class="fa-solid fa-eye toggle-password-icon" id="togglePassword"></i>
+                        </div>
+                    </div>
+
+                    <div class="form-helpers">
+                        <a href="#" id="forgotPasswordLink" class="forgot-pass-link">Mot de passe oublié ?</a>
+                    </div>
+
+                    <button type="submit" class="btn-login">
+                        <span>Se connecter</span>
+                        <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                    </button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <div class="modal-overlay" id="forgotModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-key"></i> Réinitialisation</h3>
+                <button class="close-modal-btn" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Veuillez contacter le décanat pour la réinitialisation.</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
+</body>
+</html>
