@@ -34,9 +34,9 @@
             <div class="control-card">
                 <h3><i class="fa-solid fa-filter"></i> Filtrer les comptes</h3>
                 <div class="filter-group">
-                    <button class="btn-filter active" onclick="filterUsers('tous')">Tous</button>
-                    <button class="btn-filter" onclick="filterUsers('etudiant')">Étudiants</button>
-                    <button class="btn-filter" onclick="filterUsers('enseignant')">Professeurs</button>
+                    <button type="button" class="btn-filter active" onclick="filterUsers('tous', this)">Tous</button>
+                    <button type="button" class="btn-filter" onclick="filterUsers('etudiant', this)">Étudiants</button>
+                    <button type="button" class="btn-filter" onclick="filterUsers('professeur', this)">Professeurs</button>
                 </div>
             </div>
             
@@ -44,7 +44,7 @@
                 <h3><i class="fa-solid fa-search"></i> Recherche</h3>
                 <div class="input-group">
                     <input type="text" id="searchInput" placeholder="Matricule ou nom...">
-                    <button class="btn-action-sm">Rechercher</button>
+                    <button id="searchButton" type="button" class="btn-action-sm">Rechercher</button>
                 </div>
             </div>
         </section>
@@ -57,29 +57,21 @@
                 </button>
             </div>
             
-            <div class="table-responsive">
+            <div class="table-responsive" id="getallEtudiants">
                 <table>
                     <thead>
                         <tr>
                             <th>Matricule</th>
-                            <th>Nom complet</th>
+                            <th>Nom</th>
+                            <th>Post-nom</th>
+                            <th>Prénom</th>
                             <th>Rôle</th>
                             <th>Action</th>
                             <th>Sécurité</th>
                         </tr>
                     </thead>
                     <tbody id="user-body">
-                        <tr>
-                            <td>23312</td>
-                            <td>NGBAPE Jérémie</td>
-                            <td><span class="status">Étudiant</span></td>
-                            <td><button class="btn-action-sm">Modifier</button></td>
-                            <td>
-                                <button class="btn-reset" onclick="resetPassword(23312)">
-                                    <i class="fa-solid fa-key"></i> Reset
-                                </button>
-                            </td>
-                        </tr>
+                        <!-- Les utilisateurs sont chargés dynamiquement -->
                     </tbody>
                 </table>
             </div>
@@ -87,7 +79,7 @@
     </div>
 
     <div id="userModal" class="logout-modal">
-        <div class="logout-modal-content" style="max-width: 600px; text-align: left;">
+        <div id="addEtudiantForm" class="logout-modal-content" style="max-width: 600px; text-align: left;">
             <h3>Nouvel utilisateur</h3>
             <div class="form-grid">
                 <input type="text" id="nom" placeholder="Nom" class="modal-select">
@@ -114,8 +106,31 @@
             </div>
 
             <div class="logout-modal-actions">
-                <button class="btn-modal-cancel" id="btnCancelUser">Annuler</button>
-                <button class="btn-modal-confirm" id="btnSaveUser">Enregistrer</button>
+                <button type="button" class="btn-modal-cancel" id="btnCancelUser">Annuler</button>
+                <button type="button" class="btn-modal-confirm" id="btnSaveUser">Enregistrer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal d'édition d'utilisateur -->
+    <div id="editModal" class="logout-modal" style="display: none;">
+        <div class="logout-modal-content" style="max-width: 600px; text-align: left;">
+            <h3>Modifier l'utilisateur</h3>
+            <input type="hidden" id="editUserId">
+            <div class="form-grid">
+                <input type="text" id="editMatricule" placeholder="Matricule" class="modal-select">
+                <input type="text" id="editNom" placeholder="Nom" class="modal-select">
+                <input type="text" id="editPostnom" placeholder="Post-nom" class="modal-select">
+                <input type="text" id="editPrenom" placeholder="Prénom" class="modal-select">
+                <select id="editRole" class="modal-select">
+                    <option value="etudiant">Étudiant</option>
+                    <option value="enseignant">Professeur</option>
+                    <option value="admin">Administrateur</option>
+                </select>
+            </div>
+            <div class="logout-modal-actions">
+                <button type="button" class="btn-modal-cancel" onclick="closeEditModal()">Annuler</button>
+                <button type="button" class="btn-modal-confirm" onclick="saveUserChanges()">Enregistrer</button>
             </div>
         </div>
     </div>
