@@ -1,4 +1,5 @@
-const API_BASE = "http://localhost:3000/api/etudiant";
+const API_ORIGIN = window.location.origin.startsWith("http") ? window.location.origin : "http://localhost:3000";
+const API_BASE = `${API_ORIGIN}/api/etudiant`;
 const token = localStorage.getItem("token") || sessionStorage.getItem("token");
 
 window.addEventListener("DOMContentLoaded", () => {
@@ -74,3 +75,4 @@ async function getAllEtudiants() {
         alert("Erreur lors de la récupération des étudiants");
     }
 }
+});

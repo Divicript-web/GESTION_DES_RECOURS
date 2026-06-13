@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
+    const API_ORIGIN = window.location.origin.startsWith("http") ? window.location.origin : "http://localhost:3000";
     const loginForm = document.getElementById("loginForm");
     const loginAlert = document.getElementById("loginAlert");
     const passwordInput = document.getElementById("password");
@@ -23,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const password = passwordInput.value;
 
         try {
-            const response = await fetch('http://localhost:3000/login', {
+            const response = await fetch(`${API_ORIGIN}/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ matricule, password })
