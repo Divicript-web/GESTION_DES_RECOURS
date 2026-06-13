@@ -29,7 +29,27 @@ database.exec(`
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
   );
+
+  CREATE TABLE IF NOT EXISTS recours (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    course_code TEXT NOT NULL,
+    course_title TEXT NOT NULL,
+    evaluation_types TEXT NOT NULL,
+    justification TEXT NOT NULL,
+    proof_name TEXT,
+    proof_path TEXT,
+    status TEXT NOT NULL DEFAULT 'pending',
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  );
 `);
+
+const recoursColumns = database.prepare('PRAGMA table_info(recours)').all().map((column) => column.name);
+if (!recoursColumns.includes('proof_path')) {
+  database.exec('ALTER TABLE recours ADD COLUMN proof_path TEXT');
+}
 
 function normalizeQuery(text) {
   return text.replace(/\$(\d+)/g, '?');
