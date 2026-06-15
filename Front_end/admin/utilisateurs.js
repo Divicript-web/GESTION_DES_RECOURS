@@ -1,8 +1,38 @@
-const API_ORIGIN = window.location.origin.startsWith("http") ? window.location.origin : "http://localhost:3000";
+const API_ORIGIN = window.location.port === "3001" ? window.location.origin : "http://localhost:3001";
 const API_BASE = `${API_ORIGIN}/api/etudiant`;
 const token = localStorage.getItem("token") || sessionStorage.getItem("token");
 
 let allUsers = []; // Stockage des utilisateurs
+let currentUserRole = null;
+
+async function loadAdminProfile() {
+    if (!token) {
+        window.location.href = "../login.html";
+        return;
+    }
+
+    const response = await fetch(`${API_ORIGIN}/profile`, {
+        headers: { Authorization: `Bearer ${token}` }
+    });
+
+    if (!response.ok) {
+        window.location.href = "../login.html";
+        return;
+    }
+
+    const user = await response.json();
+    currentUserRole = user.role;
+    document.getElementById("adminName").textContent = user.role === "superadmin" ? "Superadmin" : "Admin";
+    configureRoleControls();
+}
+
+function configureRoleControls() {
+    const adminOptions = document.querySelectorAll('[data-superadmin-only], #editRole option[value="admin"], #editRole option[value="superadmin"]');
+    adminOptions.forEach((option) => {
+        option.hidden = currentUserRole !== "superadmin";
+        option.disabled = currentUserRole !== "superadmin";
+    });
+}
 
 // Charger les utilisateurs au démarrage
 async function loadUsers() {
@@ -47,7 +77,7 @@ function displayUsers(users) {
     }
 
     users.forEach(user => {
-        const roleBadge = user.role === "admin" ? "Administrateur" : user.role === "etudiant" ? "Étudiant" : "Professeur";
+        const roleBadge = getRoleLabel(user.role);
         const row = document.createElement("tr");
 
         row.innerHTML = `
@@ -75,6 +105,7 @@ function openEditModal(id, matricule, nom, postnom, prenom, role) {
     document.getElementById("editPostnom").value = postnom;
     document.getElementById("editPrenom").value = prenom;
     document.getElementById("editRole").value = role || "etudiant";
+    configureRoleControls();
     document.getElementById("editModal").style.display = "flex";
 }
 
@@ -91,6 +122,11 @@ async function saveUserChanges() {
     const post_nom = document.getElementById("editPostnom").value.trim();
     const prenom = document.getElementById("editPrenom").value.trim();
     const role = document.getElementById("editRole").value;
+
+    if (["admin", "superadmin"].includes(role) && currentUserRole !== "superadmin") {
+        alert("Seul le superadmin peut attribuer un rôle administrateur.");
+        return;
+    }
 
     if (!matricule || !nom || !post_nom || !prenom || !role) {
         alert("Tous les champs sont requis !");
@@ -176,8 +212,12 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('matricule').value = '';
         document.getElementById('etudiantDept').value = '';
         document.getElementById('etudiantPromo').value = '';
+        document.getElementById('ensDept').value = '';
+        document.getElementById('adminDept').value = '';
         document.getElementById('fieldsEtudiant').style.display = 'grid';
         document.getElementById('fieldsEnseignant').style.display = 'none';
+        document.getElementById('fieldsAdmin').style.display = 'none';
+        configureRoleControls();
         userModal.style.display = 'flex';
     };
 
@@ -198,15 +238,25 @@ document.addEventListener('DOMContentLoaded', () => {
             return alert("Nom, Post-nom, Prénom et Matricule sont obligatoires !");
         }
 
-        if (role !== 'etudiant') {
-            return alert("L'ajout d'enseignants n'est pas encore relié au backend.");
+        if (["admin", "superadmin"].includes(role) && currentUserRole !== "superadmin") {
+            return alert("Seul le superadmin peut créer un compte administrateur.");
         }
 
-        const departement = document.getElementById('etudiantDept').value.trim();
-        const promotion = document.getElementById('etudiantPromo').value.trim();
+        const departement = getDepartementForRole(role);
+        const promotion = role === 'etudiant'
+            ? document.getElementById('etudiantPromo').value.trim()
+            : document.getElementById('ensPromos').value.trim();
 
-        if (!departement || !promotion) {
+        if (role === 'etudiant' && (!departement || !promotion)) {
             return alert("Département et Promotion sont requis pour un étudiant.");
+        }
+
+        if (role === 'enseignant' && !departement) {
+            return alert("Département requis pour un enseignant.");
+        }
+
+        if (role === 'admin' && !departement) {
+            return alert("Service ou département requis pour un administrateur.");
         }
 
         if (!token) {
@@ -220,7 +270,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ nom, postnom, prenom, matricule, departement, promotion })
+                body: JSON.stringify({ nom, postnom, prenom, matricule, departement, promotion, role })
             });
 
             const data = await response.json();
@@ -254,13 +304,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Charger les utilisateurs au démarrage
-    loadUsers();
+    loadAdminProfile().then(loadUsers).catch((error) => {
+        console.error(error);
+        alert("Impossible de charger le profil administrateur.");
+    });
 });
 
 function toggleFields() {
     const role = document.getElementById('roleSelector').value;
     document.getElementById('fieldsEtudiant').style.display = (role === 'etudiant') ? 'grid' : 'none';
     document.getElementById('fieldsEnseignant').style.display = (role === 'enseignant') ? 'grid' : 'none';
+    document.getElementById('fieldsAdmin').style.display = (role === 'admin') ? 'grid' : 'none';
 }
 
 // Logique pour filtrer les utilisateurs
@@ -269,6 +323,7 @@ function filterUsers(role, button) {
         if (role === 'tous') return true;
         if (role === 'etudiant') return user.role === 'etudiant';
         if (role === 'professeur') return user.role === 'enseignant';
+        if (role === 'admin') return user.role === 'admin' || user.role === 'superadmin';
         return false;
     });
 
@@ -278,4 +333,22 @@ function filterUsers(role, button) {
     }
 
     displayUsers(filtered);
+}
+
+function getDepartementForRole(role) {
+    if (role === 'etudiant') return document.getElementById('etudiantDept').value.trim();
+    if (role === 'enseignant') return document.getElementById('ensDept').value.trim();
+    if (role === 'admin') return document.getElementById('adminDept').value.trim();
+    return '';
+}
+
+function getRoleLabel(role) {
+    const labels = {
+        superadmin: "Superadmin",
+        admin: "Administrateur",
+        etudiant: "Étudiant",
+        enseignant: "Professeur",
+    };
+
+    return labels[role] || role || "";
 }

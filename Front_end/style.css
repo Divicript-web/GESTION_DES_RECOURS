@@ -154,6 +154,10 @@ body {
     max-width: 380px;
 }
 
+.register-box {
+    max-width: 560px;
+}
+
 .form-header {
     margin-bottom: 35px;
 }
@@ -277,6 +281,43 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
+}
+
+.alert-success {
+    background-color: #d1fae5;
+    color: #065f46;
+    border: 1px solid #86efac;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.auth-switch {
+    margin-top: 18px;
+    color: #666666;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.auth-switch a {
+    color: var(--primary-blue);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.auth-switch a:hover {
+    color: var(--accent-blue);
+    text-decoration: underline;
 }
 
 /* ==========================================================================
@@ -420,6 +461,11 @@ body {
     }
     .form-header h2 {
         font-size: 1.8rem;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 0;
     }
 }
 

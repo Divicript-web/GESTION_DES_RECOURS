@@ -1,4 +1,4 @@
-const API_ORIGIN = window.location.origin.startsWith("http") ? window.location.origin : "http://localhost:3000";
+const API_ORIGIN = window.location.port === "3001" ? window.location.origin : "http://localhost:3001";
 const API_BASE = `${API_ORIGIN}/api/etudiant`;
 const token = localStorage.getItem("token") || sessionStorage.getItem("token");
 

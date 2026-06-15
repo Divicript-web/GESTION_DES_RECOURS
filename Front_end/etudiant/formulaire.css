@@ -255,6 +255,95 @@ textarea { resize: vertical; }
 .btn-modal-cancel { background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 11px 22px; border-radius: 6px; font-weight: 600; cursor: pointer; }
 .btn-modal-cancel:hover { background-color: #e2e8f0; }
 
+.preview-modal-content {
+    max-width: 760px;
+    max-height: 88vh;
+    overflow-y: auto;
+    text-align: left;
+}
+
+.preview-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 10px;
+}
+
+.preview-modal-header h3 {
+    color: var(--primary-blue);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+}
+
+.preview-close-btn {
+    border: none;
+    background: #f1f5f9;
+    color: #475569;
+    width: 34px;
+    height: 34px;
+    border-radius: 6px;
+    font-size: 1.4rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.preview-intro {
+    margin-bottom: 18px;
+}
+
+.preview-content {
+    display: grid;
+    gap: 14px;
+    margin-bottom: 22px;
+}
+
+.preview-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: #f8fafc;
+    padding: 16px;
+}
+
+.preview-card h4 {
+    color: var(--primary-blue);
+    margin-bottom: 12px;
+}
+
+.preview-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.preview-field {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 10px 12px;
+}
+
+.preview-field.full {
+    grid-column: 1 / -1;
+}
+
+.preview-field strong {
+    display: block;
+    color: #64748b;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+}
+
+.preview-field span,
+.preview-field p {
+    color: #1f2937;
+    margin: 0;
+    line-height: 1.45;
+}
+
 /* ==========================================================================
    RESPONSIVE DESIGN (TÉLÉPHONES ET PETITS ÉCRANS)
    ========================================================================== */
@@ -265,6 +354,8 @@ textarea { resize: vertical; }
     form, .form-card-header { padding: 20px; }
     .form-actions { flex-direction: column-reverse; }
     .btn-submit, .btn-cancel { width: 100%; justify-content: center; }
+    .preview-grid { grid-template-columns: 1fr; }
+    .logout-modal-actions { flex-direction: column; }
 }
 /* AJOUT POUR LE BLOC NB */
 .note-box {

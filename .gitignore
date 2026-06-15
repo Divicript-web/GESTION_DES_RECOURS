@@ -4,3 +4,5 @@ node_modules/
 Back_end/data/*.sqlite
 Back_end/data/*.sqlite-shm
 Back_end/data/*.sqlite-wal
+
+Back_end/uploads/

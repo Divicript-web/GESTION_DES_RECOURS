@@ -40,28 +40,59 @@
 </header>
 
     <div class="dashboard-container">
+        <section class="profile-section profile-info-section">
+            <h3 class="section-title"><i class="fa-solid fa-id-card"></i> Informations du profil</h3>
+
+            <div id="profileAlert" class="profile-alert" style="display: none;"></div>
+
+            <div class="profile-grid">
+                <div class="profile-field">
+                    <strong>Nom complet</strong>
+                    <span id="profileFullName">Chargement...</span>
+                </div>
+                <div class="profile-field">
+                    <strong>Matricule</strong>
+                    <span id="profileMatricule">-</span>
+                </div>
+                <div class="profile-field">
+                    <strong>Rôle</strong>
+                    <span id="profileRole">-</span>
+                </div>
+                <div class="profile-field">
+                    <strong>Département</strong>
+                    <span id="profileDepartement">-</span>
+                </div>
+                <div class="profile-field">
+                    <strong>Promotion</strong>
+                    <span id="profilePromotion">-</span>
+                </div>
+            </div>
+        </section>
+
         <section class="profile-section">
             <h3 class="section-title"><i class="fa-solid fa-lock"></i> Sécurité du compte</h3>
             
-            <div class="input-wrapper">
-                <label>Mot de passe actuel</label>
-                <input type="password" id="pass1" placeholder="••••••••">
-                <i class="fa-solid fa-eye toggle-password" onclick="togglePass('pass1', this)"></i>
-            </div>
-            
-            <div class="input-wrapper">
-                <label>Nouveau mot de passe</label>
-                <input type="password" id="pass2" placeholder="••••••••">
-                <i class="fa-solid fa-eye toggle-password" onclick="togglePass('pass2', this)"></i>
-            </div>
+            <form id="passwordForm">
+                <div class="input-wrapper">
+                    <label for="pass1">Mot de passe actuel</label>
+                    <input type="password" id="pass1" placeholder="••••••••" required>
+                    <i class="fa-solid fa-eye toggle-password" data-password-toggle="pass1"></i>
+                </div>
+                
+                <div class="input-wrapper">
+                    <label for="pass2">Nouveau mot de passe</label>
+                    <input type="password" id="pass2" placeholder="••••••••" required>
+                    <i class="fa-solid fa-eye toggle-password" data-password-toggle="pass2"></i>
+                </div>
 
-            <div class="input-wrapper">
-                <label>Confirmer le nouveau mot de passe</label>
-                <input type="password" id="pass3" placeholder="••••••••">
-                <i class="fa-solid fa-eye toggle-password" onclick="togglePass('pass3', this)"></i>
-            </div>
+                <div class="input-wrapper">
+                    <label for="pass3">Confirmer le nouveau mot de passe</label>
+                    <input type="password" id="pass3" placeholder="••••••••" required>
+                    <i class="fa-solid fa-eye toggle-password" data-password-toggle="pass3"></i>
+                </div>
 
-            <button class="btn-save">Enregistrer les modifications</button>
+                <button class="btn-save" type="submit">Enregistrer les modifications</button>
+            </form>
         </section>
     </div>
 
@@ -72,11 +103,11 @@
             <p>Voulez-vous vraiment vous déconnecter ?</p>
             <div class="logout-modal-actions">
                 <button type="button" class="btn-modal-cancel" id="btnCancelLogout">Annuler</button>
-                <a href="../login.html" class="btn-modal-confirm">Se déconnecter</a>
+                <a href="../login.html" class="btn-modal-confirm" id="confirmLogout">Se déconnecter</a>
             </div>
         </div>
     </div>
 
-    <script src="dashboard.js"></script>
+    <script src="profil.js"></script>
 </body>
 </html>

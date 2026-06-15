@@ -26,7 +26,7 @@
             </nav>
             <div class="user-profile">
                 <i class="fa-solid fa-user-shield"></i>
-                <span>Admin</span>
+                <span id="adminName">Admin</span>
                 <button type="button" id="logoutTrigger" class="btn-logout-small" title="Se déconnecter">
                     <i class="fa-solid fa-right-from-bracket"></i>
                 </button>
@@ -38,15 +38,15 @@
         
         <section class="stats-grid">
             <div class="stat-card blue">
-                <h3>45</h3>
+                <h3 id="totalRecours">0</h3>
                 <p>Total Recours Reçus</p>
             </div>
             <div class="stat-card orange">
-                <h3>12</h3>
+                <h3 id="pendingRecours">0</h3>
                 <p>En Attente d'Aiguillage</p>
             </div>
             <div class="stat-card green">
-                <h3>33</h3>
+                <h3 id="processedRecours">0</h3>
                 <p>Traités par Professeurs</p>
             </div>
         </section>
@@ -83,16 +83,8 @@
                             <th>Action</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td>23312</td>
-                            <td>NGBAPE Jérémie</td>
-                            <td>INFO-315</td>
-                            <td>Interro/TP</td>
-                            <td>24/05/2026</td>
-                            <td><span class="status pending">À assigner</span></td>
-                            <td><a href="aiguillage.html" class="btn-action">Assigner</a></td>
-                        </tr>
+                    <tbody id="recoursBody">
+                        <tr><td colspan="7" style="text-align:center;">Chargement...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -106,7 +98,7 @@
             <p>Voulez-vous vraiment vous déconnecter de votre session administrateur ?</p>
             <div class="logout-modal-actions">
                 <button type="button" class="btn-modal-cancel" id="btnCancelLogout">Annuler</button>
-                <a href="../login.html" class="btn-modal-confirm">Se déconnecter</a>
+                <a href="../login.html" class="btn-modal-confirm" id="confirmLogout">Se déconnecter</a>
             </div>
         </div>
     </div>

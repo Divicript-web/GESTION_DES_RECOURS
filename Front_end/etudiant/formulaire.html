@@ -91,6 +91,23 @@
             </form>
         </main>
     </div>
+    <div id="previewModal" class="logout-modal">
+        <div class="logout-modal-content preview-modal-content">
+            <div class="preview-modal-header">
+                <h3><i class="fa-solid fa-clipboard-check"></i> Vérification avant soumission</h3>
+                <button type="button" class="preview-close-btn" id="btnClosePreview">&times;</button>
+            </div>
+            <p class="preview-intro">Veuillez vérifier les informations ci-dessous avant l’envoi définitif.</p>
+            <div id="previewContent" class="preview-content"></div>
+            <div class="logout-modal-actions">
+                <button type="button" class="btn-modal-cancel" id="btnEditPreview">Modifier</button>
+                <button type="button" class="btn-submit" id="btnConfirmSubmit">
+                    <i class="fa-solid fa-paper-plane"></i>
+                    <span>Confirmer l’envoi</span>
+                </button>
+            </div>
+        </div>
+    </div>
     <!-- MODALE : Déconnexion -->
     <div id="logoutModal" class="logout-modal">
         <div class="logout-modal-content">

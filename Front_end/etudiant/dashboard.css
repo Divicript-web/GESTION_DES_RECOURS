@@ -325,6 +325,21 @@ tr:hover td {
 .status-badge.success { background-color: var(--status-success-bg); color: var(--status-success-text); }
 .status-badge.danger { background-color: var(--status-danger-bg); color: var(--status-danger-text); }
 
+.recours-row {
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.recours-row:hover,
+.recours-row:focus {
+    background-color: #f8fafc;
+    outline: none;
+}
+
+.recours-row:focus-visible {
+    box-shadow: inset 0 0 0 2px var(--primary-blue);
+}
+
 /* Bouton d'action */
 .btn-view {
     background: none;
@@ -458,6 +473,67 @@ tr:hover td {
 
 .btn-modal-cancel:hover {
     background-color: #e2e8f0;
+}
+
+.details-modal-content {
+    max-width: 640px;
+    text-align: left;
+}
+
+.details-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.details-modal-header h3 {
+    margin: 0;
+    color: var(--primary-blue);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.details-close-btn {
+    border: none;
+    background: #f1f5f9;
+    color: #475569;
+    width: 34px;
+    height: 34px;
+    border-radius: 6px;
+    font-size: 1.4rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.details-modal-body {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 22px;
+}
+
+.details-row {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 14px;
+    background: #f8fafc;
+}
+
+.details-row strong {
+    display: block;
+    color: #475569;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+}
+
+.details-row span,
+.details-row p {
+    color: #1f2937;
+    margin: 0;
+    line-height: 1.5;
 }
 
 /* ==========================================================================

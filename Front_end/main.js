@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const API_ORIGIN = window.location.origin.startsWith("http") ? window.location.origin : "http://localhost:3000";
+    const API_ORIGIN = window.location.port === "3001" ? window.location.origin : "http://localhost:3001";
     const loginForm = document.getElementById("loginForm");
     const loginAlert = document.getElementById("loginAlert");
     const passwordInput = document.getElementById("password");
@@ -35,9 +35,10 @@ document.addEventListener("DOMContentLoaded", () => {
             if (response.ok) {
                 // Sauvegarde du token pour les requêtes futures
                 localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify(data.user || {}));
                 
                 // Redirection basée sur le rôle retourné par le serveur
-                if (data.role === 'admin') {
+                if (data.role === 'admin' || data.role === 'superadmin') {
                     window.location.href = "admin/dashboard.html";
                 } else if (data.role === 'enseignant') {
                     window.location.href = "professeur/dashboard.html";

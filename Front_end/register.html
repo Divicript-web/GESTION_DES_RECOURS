@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription - Gestion des Recours ULPGL</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <main class="login-container">
+        <section class="login-left">
+            <div class="overlay"></div>
+            <svg class="curve-divider" viewBox="0 0 100 100" preserveAspectRatio="none">
+                <path d="M100,0 Q20,50 100,100 Z" fill="#ffffff"></path>
+            </svg>
+
+            <div class="institution-content">
+                <div class="ulpgl-brand-banner">
+                    <img src="assets/logo-ulpgl.png" alt="Logo ULPGL" class="university-logo">
+                    <div class="brand-vertical-divider"></div>
+                    <div class="brand-text-block">
+                        <h1 class="univ-title">Université Libre des Pays des Grands Lacs</h1>
+                        <h2 class="univ-sub">ULPGL - Goma</h2>
+                    </div>
+                </div>
+                <div class="horizontal-divider"></div>
+                <h3 class="faculty-title">Faculté des Sciences Économiques et de Gestion</h3>
+                <p class="app-sub">Système Intégré de Gestion des Recours Académiques</p>
+            </div>
+        </section>
+
+        <section class="login-right">
+            <div class="form-box register-box">
+                <div class="form-header">
+                    <h2>Inscription</h2>
+                    <p>Créez votre compte étudiant avec votre numéro matricule.</p>
+                </div>
+
+                <div class="alert-danger" id="registerAlert" style="display: none;"></div>
+                <div class="alert-success" id="registerSuccess" style="display: none;"></div>
+
+                <form id="registerForm">
+                    <div class="input-group">
+                        <label for="matricule">Numéro Matricule</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-id-card input-icon"></i>
+                            <input type="text" id="matricule" placeholder="Ex: ETU001" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="input-group">
+                            <label for="nom">Nom</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-user input-icon"></i>
+                                <input type="text" id="nom" placeholder="Nom" required>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="postnom">Post-nom</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-user input-icon"></i>
+                                <input type="text" id="postnom" placeholder="Post-nom" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="input-group">
+                            <label for="prenom">Prénom</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-user input-icon"></i>
+                                <input type="text" id="prenom" placeholder="Prénom" required>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="promotion">Promotion</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-graduation-cap input-icon"></i>
+                                <input type="text" id="promotion" placeholder="Ex: L2" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="departement">Département</label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-building-columns input-icon"></i>
+                            <input type="text" id="departement" placeholder="Ex: Sciences Économiques" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="input-group">
+                            <label for="password">Mot de passe</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-lock input-icon"></i>
+                                <input type="password" id="password" placeholder="Minimum 6 caractères" required>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="confirmPassword">Confirmation</label>
+                            <div class="input-wrapper">
+                                <i class="fa-solid fa-lock input-icon"></i>
+                                <input type="password" id="confirmPassword" placeholder="Répéter le mot de passe" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-login">
+                        <span>Créer mon compte</span>
+                        <i class="fa-solid fa-user-plus"></i>
+                    </button>
+                </form>
+
+                <p class="auth-switch">
+                    Vous avez déjà un compte ?
+                    <a href="login.html">Se connecter</a>
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <script src="register.js"></script>
+</body>
+</html>

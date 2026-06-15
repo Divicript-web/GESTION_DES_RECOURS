@@ -26,8 +26,8 @@
             <a href="profil.html" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 12px;">
                 <i class="fa-solid fa-circle-user profile-icon"></i>
                 <div class="user-info">
-                    <span class="user-name">Jérémie NGBAPE</span>
-                    <span class="user-role">Matricule : 23312</span>
+                    <span class="user-name" id="userName">Étudiant</span>
+                    <span class="user-role" id="userMatricule">Matricule : -</span>
                 </div>
             </a>
         </div>
@@ -66,21 +66,21 @@
             <div class="stat-card blue">
                 <div class="stat-icon"><i class="fa-solid fa-folder-open"></i></div>
                 <div class="stat-data">
-                    <h3>3</h3>
+                    <h3 id="totalRecours">0</h3>
                     <p>Total Recours</p>
                 </div>
             </div>
             <div class="stat-card orange">
                 <div class="stat-icon"><i class="fa-solid fa-clock"></i></div>
                 <div class="stat-data">
-                    <h3>1</h3>
+                    <h3 id="pendingRecours">0</h3>
                     <p>En attente</p>
                 </div>
             </div>
             <div class="stat-card green">
                 <div class="stat-icon"><i class="fa-solid fa-circle-check"></i></div>
                 <div class="stat-data">
-                    <h3>2</h3>
+                    <h3 id="validatedRecours">0</h3>
                     <p>Recours Validés</p>
                 </div>
             </div>
@@ -102,19 +102,27 @@
                             <th>Action</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="recoursTableBody">
                         <tr>
-                            <td><b>INFO-315</b></td>
-                            <td>Bases de Données Relationnelles</td>
-                            <td>24/05/2026</td>
-                            <td><span class="status-badge pending">En attente</span></td>
-                            <td><button class="btn-view" title="Détails"><i class="fa-solid fa-eye"></i></button></td>
+                            <td colspan="5" style="text-align: center;">Chargement...</td>
                         </tr>
-                        <!-- Lignes supplémentaires -->
                     </tbody>
                 </table>
             </div>
         </section>
+    </div>
+
+    <div id="detailsModal" class="logout-modal">
+        <div class="logout-modal-content details-modal-content">
+            <div class="details-modal-header">
+                <h3><i class="fa-solid fa-file-lines"></i> Détails du recours</h3>
+                <button type="button" class="details-close-btn" id="closeDetailsModal">&times;</button>
+            </div>
+            <div id="detailsModalBody" class="details-modal-body"></div>
+            <div class="logout-modal-actions">
+                <button type="button" class="btn-modal-cancel" id="btnCloseDetails">Fermer</button>
+            </div>
+        </div>
     </div>
 
     <!-- MODALE : Déconnexion -->

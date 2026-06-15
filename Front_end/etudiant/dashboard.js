@@ -1,85 +1,235 @@
-/**
- * dashboard.js
- * Gère les interactions dynamiques du tableau de bord étudiant
- */
+const API_ORIGIN = window.location.port === "3001" ? window.location.origin : "http://localhost:3001";
 
 document.addEventListener('DOMContentLoaded', () => {
-    
-    // --- 1. GESTION DE LA MODALE DE DÉCONNEXION ---
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
     const logoutTrigger = document.getElementById('logoutTrigger');
     const logoutModal = document.getElementById('logoutModal');
     const btnCancelLogout = document.getElementById('btnCancelLogout');
+    const detailsModal = document.getElementById('detailsModal');
+    const closeDetailsModal = document.getElementById('closeDetailsModal');
+    const btnCloseDetails = document.getElementById('btnCloseDetails');
 
-    // Affiche la modale au clic sur le bouton déconnexion
-    if (logoutTrigger) {
-        logoutTrigger.addEventListener('click', (e) => {
-            e.preventDefault(); // Empêche le lien par défaut
+    if (!token) {
+        window.location.href = '../login.html';
+        return;
+    }
+
+    setupLogout(logoutTrigger, logoutModal, btnCancelLogout);
+    setupDetailsModal(detailsModal, closeDetailsModal, btnCloseDetails);
+    loadDashboard(token);
+});
+
+function setupLogout(logoutTrigger, logoutModal, btnCancelLogout) {
+    if (logoutTrigger && logoutModal) {
+        logoutTrigger.addEventListener('click', (event) => {
+            event.preventDefault();
             logoutModal.style.display = 'flex';
         });
     }
 
-    // Ferme la modale via le bouton annuler
-    if (btnCancelLogout) {
+    if (btnCancelLogout && logoutModal) {
         btnCancelLogout.addEventListener('click', () => {
             logoutModal.style.display = 'none';
         });
     }
 
-    // Ferme la modale en cliquant sur l'arrière-plan flouté
-    window.addEventListener('click', (e) => {
-        if (e.target === logoutModal) {
+    window.addEventListener('click', (event) => {
+        if (event.target === logoutModal) {
             logoutModal.style.display = 'none';
         }
     });
 
-    // --- 2. GESTION DES DÉTAILS DANS LE TABLEAU ---
-    const viewButtons = document.querySelectorAll('.btn-view');
-    
-    // Ajoute un écouteur sur chaque bouton "Voir"
-    viewButtons.forEach(button => {
-        button.addEventListener('click', (e) => {
-            const row = e.target.closest('tr'); // Récupère la ligne cliquée
-            const courseName = row.querySelector('td:nth-child(2)').innerText;
-            console.log(`Ouverture des détails : ${courseName}`);
-        });
+    window.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && logoutModal && logoutModal.style.display === 'flex') {
+            logoutModal.style.display = 'none';
+        }
     });
-});
-// Fermeture de la modale avec la touche Echap
-window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && logoutModal.style.display === 'flex') {
-        logoutModal.style.display = 'none';
-    }
-});
-/**
- * Bascule la visibilité du mot de passe
- * @param {string} id - L'ID de l'input mot de passe
- * @param {HTMLElement} icon - L'icône cliquée
- */
-function togglePass(id, icon) {
-    const input = document.getElementById(id);
-    if (input.type === "password") {
-        input.type = "text";
-        icon.classList.replace("fa-eye", "fa-eye-slash");
-    } else {
-        input.type = "password";
-        icon.classList.replace("fa-eye-slash", "fa-eye");
+}
+
+function setupDetailsModal(detailsModal, closeDetailsModal, btnCloseDetails) {
+    const close = () => {
+        detailsModal.style.display = 'none';
+    };
+
+    if (closeDetailsModal) closeDetailsModal.addEventListener('click', close);
+    if (btnCloseDetails) btnCloseDetails.addEventListener('click', close);
+
+    window.addEventListener('click', (event) => {
+        if (event.target === detailsModal) {
+            close();
+        }
+    });
+}
+
+async function loadDashboard(token) {
+    try {
+        const [profileResponse, recoursResponse] = await Promise.all([
+            fetch(`${API_ORIGIN}/profile`, {
+                headers: { Authorization: `Bearer ${token}` },
+            }),
+            fetch(`${API_ORIGIN}/api/recours/me`, {
+                headers: { Authorization: `Bearer ${token}` },
+            }),
+        ]);
+
+        if (profileResponse.status === 401 || recoursResponse.status === 401) {
+            localStorage.removeItem('token');
+            sessionStorage.removeItem('token');
+            window.location.href = '../login.html';
+            return;
+        }
+
+        const profile = await profileResponse.json();
+        const recoursData = await recoursResponse.json();
+
+        if (!profileResponse.ok) throw new Error(profile.message || 'Profil introuvable');
+        if (!recoursResponse.ok) throw new Error(recoursData.message || 'Recours introuvables');
+
+        renderUser(profile);
+        renderRecours(recoursData.recours || []);
+    } catch (error) {
+        console.error(error);
+        renderError('Impossible de charger vos recours pour le moment.');
     }
 }
-/**
- * Fonction pour basculer la visibilité du mot de passe
- */
-function togglePass(id, icon) {
-    const input = document.getElementById(id);
-    if (input.type === "password") {
-        input.type = "text";
-        icon.classList.replace("fa-eye", "fa-eye-slash");
-    } else {
-        input.type = "password";
-        icon.classList.replace("fa-eye-slash", "fa-eye");
-    }
+
+function renderUser(user) {
+    const fullName = [user.prenom, user.nom, user.post_nom].filter(Boolean).join(' ');
+    document.getElementById('userName').textContent = fullName || 'Étudiant';
+    document.getElementById('userMatricule').textContent = `Matricule : ${user.matricule || '-'}`;
 }
-// Vérification automatique à chaque chargement de page
-if (!localStorage.getItem('token')) {
-    // Si pas de token, on renvoie à la page de connexion
-    window.location.href = '../login.html'; 
+
+function renderRecours(recoursList) {
+    const total = recoursList.length;
+    const pending = recoursList.filter((item) => item.status === 'pending').length;
+    const validated = recoursList.filter((item) => item.status === 'validated' || item.status === 'success').length;
+
+    document.getElementById('totalRecours').textContent = total;
+    document.getElementById('pendingRecours').textContent = pending;
+    document.getElementById('validatedRecours').textContent = validated;
+
+    const tbody = document.getElementById('recoursTableBody');
+    tbody.innerHTML = '';
+
+    if (recoursList.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="5" style="text-align: center;">Aucun recours déposé pour le moment.</td>
+            </tr>
+        `;
+        return;
+    }
+
+    recoursList.forEach((recours) => {
+        const row = document.createElement('tr');
+        const status = getStatusInfo(recours.status);
+        const evaluations = Array.isArray(recours.evaluation_types) ? recours.evaluation_types.join(', ') : '';
+        const openDetails = () => openDetailsModal(recours, status, evaluations);
+
+        row.className = 'recours-row';
+        row.tabIndex = 0;
+        row.setAttribute('role', 'button');
+        row.setAttribute('aria-label', `Voir les détails du recours ${recours.course_code}`);
+        row.innerHTML = `
+            <td><b>${escapeHtml(recours.course_code)}</b></td>
+            <td>${escapeHtml(recours.course_title)}</td>
+            <td>${formatDate(recours.created_at)}</td>
+            <td><span class="status-badge ${status.className}">${status.label}</span></td>
+            <td><button class="btn-view" type="button" title="Détails"><i class="fa-solid fa-eye"></i></button></td>
+        `;
+
+        row.addEventListener('click', openDetails);
+        row.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                openDetails();
+            }
+        });
+
+        row.querySelector('.btn-view').addEventListener('click', (event) => {
+            event.stopPropagation();
+            openDetails();
+        });
+
+        tbody.appendChild(row);
+    });
+}
+
+function openDetailsModal(recours, status, evaluations) {
+    const modal = document.getElementById('detailsModal');
+    const body = document.getElementById('detailsModalBody');
+
+    body.innerHTML = `
+        <div class="details-row">
+            <strong>Cours</strong>
+            <span>${escapeHtml(recours.course_code)} - ${escapeHtml(recours.course_title)}</span>
+        </div>
+        <div class="details-row">
+            <strong>Type d'évaluation</strong>
+            <span>${escapeHtml(evaluations || '-')}</span>
+        </div>
+        <div class="details-row">
+            <strong>Date de dépôt</strong>
+            <span>${formatDate(recours.created_at)}</span>
+        </div>
+        <div class="details-row">
+            <strong>Statut</strong>
+            <span class="status-badge ${status.className}">${status.label}</span>
+        </div>
+        <div class="details-row">
+            <strong>Justification</strong>
+            <p>${escapeHtml(recours.justification || '-')}</p>
+        </div>
+        <div class="details-row">
+            <strong>Preuve jointe</strong>
+            <span>${renderProof(recours)}</span>
+        </div>
+    `;
+
+    modal.style.display = 'flex';
+}
+
+function renderProof(recours) {
+    if (!recours.proof_name) return 'Aucune';
+    if (!recours.proof_path) return escapeHtml(recours.proof_name);
+
+    return `<a href="${escapeHtml(API_ORIGIN + recours.proof_path)}" target="_blank" rel="noopener">${escapeHtml(recours.proof_name)}</a>`;
+}
+
+function renderError(message) {
+    document.getElementById('recoursTableBody').innerHTML = `
+        <tr>
+            <td colspan="5" style="text-align: center;">${escapeHtml(message)}</td>
+        </tr>
+    `;
+}
+
+function getStatusInfo(status) {
+    const statuses = {
+        pending: { label: 'En attente', className: 'pending' },
+        validated: { label: 'Validé', className: 'success' },
+        success: { label: 'Validé', className: 'success' },
+        rejected: { label: 'Rejeté', className: 'danger' },
+    };
+
+    return statuses[status] || statuses.pending;
+}
+
+function formatDate(value) {
+    if (!value) return '-';
+
+    return new Intl.DateTimeFormat('fr-FR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+    }).format(new Date(value.replace(' ', 'T')));
+}
+
+function escapeHtml(value) {
+    return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
 }

@@ -23,7 +23,7 @@
             </nav>
             <div class="user-profile">
                 <i class="fa-solid fa-user-shield"></i>
-                <span>Admin</span>
+                <span id="adminName">Admin</span>
                 <button type="button" id="logoutTrigger" class="btn-logout-small"><i class="fa-solid fa-right-from-bracket"></i></button>
             </div>
         </div>
@@ -37,6 +37,7 @@
                     <button type="button" class="btn-filter active" onclick="filterUsers('tous', this)">Tous</button>
                     <button type="button" class="btn-filter" onclick="filterUsers('etudiant', this)">Étudiants</button>
                     <button type="button" class="btn-filter" onclick="filterUsers('professeur', this)">Professeurs</button>
+                    <button type="button" class="btn-filter" onclick="filterUsers('admin', this)">Admins</button>
                 </div>
             </div>
             
@@ -91,6 +92,7 @@
             <select id="roleSelector" class="modal-select" onchange="toggleFields()">
                 <option value="etudiant">Étudiant</option>
                 <option value="enseignant">Enseignant</option>
+                <option value="admin" data-superadmin-only>Administrateur</option>
             </select>
 
             <div id="fieldsEtudiant" class="form-grid">
@@ -103,6 +105,10 @@
                 <input type="text" id="ensPromos" placeholder="Promotions" class="modal-select">
                 <input type="text" id="ensDept" placeholder="Départements" class="modal-select">
                 <input type="number" id="ensCredits" placeholder="Crédits" class="modal-select">
+            </div>
+
+            <div id="fieldsAdmin" class="form-grid" style="display:none;">
+                <input type="text" id="adminDept" placeholder="Service ou département" class="modal-select">
             </div>
 
             <div class="logout-modal-actions">
@@ -126,6 +132,7 @@
                     <option value="etudiant">Étudiant</option>
                     <option value="enseignant">Professeur</option>
                     <option value="admin">Administrateur</option>
+                    <option value="superadmin">Superadmin</option>
                 </select>
             </div>
             <div class="logout-modal-actions">
