@@ -53,12 +53,11 @@
                             <div class="form-group">
                                 <label>Cours concerné</label>
                                 <select class="course-select" required>
-                                    <option value="ECO-312">ECO-312 : Macroéconomie</option>
-                                    <option value="INFO-315">INFO-315 : Bases de Données</option>
+                                    <option value="">Chargement des cours...</option>
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label>Type d'évaluation</label>
+                                <label>Type de recours / évaluation concernée</label>
                                 <div class="eval-checkboxes">
                                     <label><input type="checkbox" value="TP"> TP</label>
                                     <label><input type="checkbox" value="TD"> TD</label>
@@ -68,17 +67,29 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label>Justification détaillée</label>
-                            <textarea class="details-input" rows="5" placeholder="Expliquez les raisons, nommez vos partenaires de groupe et précisez les questions contestées." required></textarea>
+                            <label>Motif du recours</label>
+                            <select class="reason-select" required>
+                                <option value="">Choisir le motif du recours...</option>
+                                <option value="Note manquante">Note manquante</option>
+                                <option value="Erreur de cotation">Erreur de cotation</option>
+                                <option value="Erreur de transcription">Erreur de transcription</option>
+                                <option value="Autre motif académique">Autre motif académique</option>
+                            </select>
+                            <label class="sub-label">Description détaillée</label>
+                            <textarea class="details-input" rows="5" minlength="20" placeholder="Décrivez précisément la situation, les questions concernées et les éléments à vérifier." required></textarea>
+                            <p class="field-help">Minimum 20 caractères pour faciliter le traitement.</p>
                         </div>
                         <div class="form-group">
                             <label>Pièce jointe (Preuve)</label>
-                            <div class="file-drop-zone" onclick="this.querySelector('input').click()">
+                            <div class="file-drop-zone" role="button" tabindex="0">
                                 <i class="fa-solid fa-cloud-arrow-up"></i>
-                                <input type="file" class="file-input" hidden accept=".pdf,.jpg,.png">
-                                <span class="file-label-text">Choisir un fichier (PDF/Image, max 5Mo)</span>
+                                <input type="file" class="file-input" hidden accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx,.xls,.xlsx,.csv,.txt">
+                                <span class="file-label-text">Choisir un fichier</span>
+                                <span class="file-specs">PDF, image, Word, Excel, CSV ou TXT - max 5Mo</span>
                             </div>
+                            <div class="file-selected" aria-live="polite"></div>
                         </div>
+                        <p class="course-error" aria-live="polite"></p>
                     </div>
                 </div>
 
@@ -105,6 +116,17 @@
                     <i class="fa-solid fa-paper-plane"></i>
                     <span>Confirmer l’envoi</span>
                 </button>
+            </div>
+        </div>
+    </div>
+    <div id="feedbackModal" class="logout-modal">
+        <div class="logout-modal-content feedback-modal-content">
+            <div class="feedback-modal-icon" id="feedbackModalIcon"><i class="fa-solid fa-circle-info"></i></div>
+            <h3 id="feedbackModalTitle">Information</h3>
+            <p id="feedbackModalMessage"></p>
+            <div class="logout-modal-actions">
+                <button type="button" class="btn-modal-cancel" id="feedbackModalCancel">Annuler</button>
+                <button type="button" class="btn-submit" id="feedbackModalConfirm">OK</button>
             </div>
         </div>
     </div>

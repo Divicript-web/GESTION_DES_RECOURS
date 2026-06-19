@@ -6,6 +6,7 @@
     <title>Administration - Cours</title>
     <link rel="stylesheet" href="dashboard.css">
     <link rel="stylesheet" href="cours.css">
+    <link rel="stylesheet" href="admin-common.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -24,7 +25,7 @@
             </nav>
             <div class="user-profile">
                 <i class="fa-solid fa-user-shield"></i>
-                <span>Admin</span>
+                <span id="adminName">Admin</span>
                 <button type="button" id="logoutTrigger" class="btn-logout-small"><i class="fa-solid fa-right-from-bracket"></i></button>
             </div>
         </div>
@@ -36,11 +37,11 @@
                 <h3><i class="fa-solid fa-filter"></i> Recherche</h3>
                 <div class="input-group">
                     <input type="text" id="searchCours" placeholder="Code ou nom du cours...">
-                    <button class="btn-action-sm">Rechercher</button>
+                    <button class="btn-action-sm" id="searchCoursButton" type="button">Rechercher</button>
                 </div>
             </div>
             <div class="control-card">
-                <button class="btn-action" style="width: 100%; padding: 15px;" onclick="openCoursModal()">
+                <button class="btn-action" id="openCoursButton" type="button" style="width: 100%; padding: 15px;">
                     <i class="fa-solid fa-plus"></i> Ajouter un cours
                 </button>
             </div>
@@ -51,7 +52,7 @@
             <div class="table-responsive">
                 <table>
                     <thead>
-                        <tr><th>Code</th><th>Intitulé</th><th>Crédits</th><th>Département</th><th>Action</th></tr>
+                        <tr><th>Code</th><th>Intitulé</th><th>Crédits</th><th>Département</th><th>Promotions</th><th>Enseignant</th><th>Action</th></tr>
                     </thead>
                     <tbody id="cours-body">
                         </tbody>
@@ -62,22 +63,22 @@
     <div id="coursModal" class="logout-modal">
     <div class="logout-modal-content" style="max-width: 600px; text-align: left;">
         <h3>Nouveau Cours</h3>
+        <input type="hidden" id="coursId">
         
         <div class="form-grid">
             <input type="text" id="codeCours" placeholder="Code du cours (ex: INF101)" class="modal-select">
             <input type="text" id="nomCours" placeholder="Nom complet du cours" class="modal-select">
             <input type="number" id="creditsCours" placeholder="Nombre de crédits" class="modal-select">
-            <select id="deptCours" class="modal-select">
-                <option value="">Département</option>
-                <option value="info">Informatique</option>
-                <option value="eco">Économie</option>
-            </select>
+            <input type="text" id="deptCours" placeholder="Département" class="modal-select">
         </div>
 
         <div class="form-grid">
-            <input type="text" id="ensResponsable" placeholder="Enseignant responsable" class="modal-select">
-            <input type="text" id="promosCours" placeholder="Promotions (ex: L1, L2)" class="modal-select">
+            <select id="ensResponsable" class="modal-select">
+                <option value="">Enseignant responsable</option>
+            </select>
+            <select id="promosCours" class="modal-select" multiple></select>
         </div>
+        <p id="coursFormMessage" class="admin-form-message"></p>
         
         <div class="logout-modal-actions">
             <button class="btn-modal-cancel" id="btnCancelCours">Annuler</button>
@@ -86,6 +87,20 @@
     </div>
     </div>
 
+    <div id="logoutModal" class="logout-modal">
+        <div class="logout-modal-content">
+            <i class="fa-solid fa-arrow-right-from-bracket" style="font-size: 2rem; color: #dc2626; margin-bottom: 15px;"></i>
+            <h3>Confirmation</h3>
+            <p>Voulez-vous vraiment vous déconnecter de votre session administrateur ?</p>
+            <div class="logout-modal-actions">
+                <button type="button" class="btn-modal-cancel" id="btnCancelLogout">Annuler</button>
+                <a href="../login.html" class="btn-modal-confirm" id="confirmLogout">Se déconnecter</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="admin-common.js"></script>
+    <script src="../shared/promotions.js"></script>
     <script src="cours.js"></script>
 </body>
 </html>

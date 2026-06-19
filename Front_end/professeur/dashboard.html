@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Enseignant - Dashboard</title>
     <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="../shared/file-attachment.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -26,7 +27,7 @@
             </nav>
             <div class="user-profile">
                 <i class="fa-solid fa-chalkboard-user"></i>
-                <span>Prof. KASONGO</span>
+                <span id="professorName">Professeur</span>
                 <button type="button" id="logoutTrigger" class="btn-logout-small" title="Se déconnecter">
                     <i class="fa-solid fa-right-from-bracket"></i>
                 </button>
@@ -36,9 +37,9 @@
 
     <div class="dashboard-container">
         <section class="stats-grid">
-            <div class="stat-card blue"><h3>12</h3><p>Recours Reçus</p></div>
-            <div class="stat-card orange"><h3>5</h3><p>En Attente</p></div>
-            <div class="stat-card green"><h3>7</h3><p>Traités</p></div>
+            <div class="stat-card blue"><h3 id="totalAssigned">0</h3><p>Recours assignés</p></div>
+            <div class="stat-card orange"><h3 id="pendingAssigned">0</h3><p>À traiter</p></div>
+            <div class="stat-card green"><h3 id="treatedAssigned">0</h3><p>Soumis à l'admin</p></div>
         </section>
 
         <section class="table-section">
@@ -50,15 +51,37 @@
                             <th>Matricule</th><th>Étudiant</th><th>Cours</th><th>Type</th><th>Date</th><th>Action</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td>23312</td><td>NGBAPE Jérémie</td><td>INFO-315</td><td>Interro</td><td>24/05/2026</td>
-                            <td><button class="btn-action">Traiter</button></td>
-                        </tr>
+                    <tbody id="recoursBody">
+                        <tr><td colspan="6" style="text-align: center;">Chargement...</td></tr>
                     </tbody>
                 </table>
             </div>
         </section>
+    </div>
+
+    <div id="decisionModal" class="logout-modal">
+        <div class="logout-modal-content treatment-modal-content">
+            <h3 id="decisionModalTitle">Traitement du recours</h3>
+            <div id="decisionRecoursDetails" class="treatment-details"></div>
+            <div class="form-group">
+                <label for="decisionSelect">Décision</label>
+                <select id="decisionSelect" class="modal-select">
+                    <option value="">Choisir une décision...</option>
+                    <option value="Fondé">Fondé</option>
+                    <option value="Non fondé">Non fondé</option>
+                    <option value="Correction partielle">Correction partielle</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="professorResponse">Réponse à transmettre</label>
+                <textarea id="professorResponse" class="modal-textarea" rows="5" placeholder="Saisir la réponse ou la décision motivée..."></textarea>
+            </div>
+            <p id="decisionMessage" class="modal-help"></p>
+            <div class="logout-modal-actions">
+                <button type="button" class="btn-modal-cancel" id="btnCancelDecision">Annuler</button>
+                <button type="button" class="btn-modal-confirm" id="btnSubmitDecision">Soumettre à l'admin</button>
+            </div>
+        </div>
     </div>
 
     <div id="logoutModal" class="logout-modal">
@@ -68,11 +91,12 @@
             <p>Voulez-vous vraiment vous déconnecter de votre session ?</p>
             <div class="logout-modal-actions">
                 <button type="button" class="btn-modal-cancel" id="btnCancelLogout">Annuler</button>
-                <a href="../login.html" class="btn-modal-confirm">Se déconnecter</a>
+                <a href="../login.html" class="btn-modal-confirm" id="confirmLogout">Se déconnecter</a>
             </div>
         </div>
     </div>
 
+    <script src="../shared/file-attachment.js"></script>
     <script src="dashboard.js"></script>
 </body>
 </html>

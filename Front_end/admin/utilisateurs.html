@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Administration - Utilisateurs</title>
     <link rel="stylesheet" href="utilisateurs.css">
+    <link rel="stylesheet" href="admin-common.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -63,10 +64,12 @@
                     <thead>
                         <tr>
                             <th>Matricule</th>
+                            <th>Email</th>
                             <th>Nom</th>
                             <th>Post-nom</th>
                             <th>Prénom</th>
                             <th>Rôle</th>
+                            <th>Promotion</th>
                             <th>Action</th>
                             <th>Sécurité</th>
                         </tr>
@@ -87,6 +90,9 @@
                 <input type="text" id="postnom" placeholder="Post-nom" class="modal-select">
                 <input type="text" id="prenom" placeholder="Prénom" class="modal-select">
                 <input type="text" id="matricule" placeholder="Matricule" class="modal-select">
+                <input type="email" id="email" placeholder="Email" class="modal-select">
+                <input type="password" id="password" placeholder="Mot de passe" class="modal-select">
+                <input type="password" id="confirmPassword" placeholder="Confirmer le mot de passe" class="modal-select">
             </div>
 
             <select id="roleSelector" class="modal-select" onchange="toggleFields()">
@@ -97,14 +103,12 @@
 
             <div id="fieldsEtudiant" class="form-grid">
                 <input type="text" id="etudiantDept" placeholder="Département" class="modal-select">
-                <input type="text" id="etudiantPromo" placeholder="Promotion" class="modal-select">
+                <select id="etudiantPromo" class="modal-select"></select>
             </div>
 
             <div id="fieldsEnseignant" class="form-grid" style="display:none;">
-                <input type="text" id="ensCours" placeholder="Cours dispensés" class="modal-select">
-                <input type="text" id="ensPromos" placeholder="Promotions" class="modal-select">
+                <select id="ensPromos" class="modal-select" multiple></select>
                 <input type="text" id="ensDept" placeholder="Départements" class="modal-select">
-                <input type="number" id="ensCredits" placeholder="Crédits" class="modal-select">
             </div>
 
             <div id="fieldsAdmin" class="form-grid" style="display:none;">
@@ -115,6 +119,7 @@
                 <button type="button" class="btn-modal-cancel" id="btnCancelUser">Annuler</button>
                 <button type="button" class="btn-modal-confirm" id="btnSaveUser">Enregistrer</button>
             </div>
+            <p id="userFormMessage" class="admin-form-message"></p>
         </div>
     </div>
 
@@ -122,13 +127,16 @@
     <div id="editModal" class="logout-modal" style="display: none;">
         <div class="logout-modal-content" style="max-width: 600px; text-align: left;">
             <h3>Modifier l'utilisateur</h3>
-            <input type="hidden" id="editUserId">
-            <div class="form-grid">
-                <input type="text" id="editMatricule" placeholder="Matricule" class="modal-select">
-                <input type="text" id="editNom" placeholder="Nom" class="modal-select">
-                <input type="text" id="editPostnom" placeholder="Post-nom" class="modal-select">
-                <input type="text" id="editPrenom" placeholder="Prénom" class="modal-select">
-                <select id="editRole" class="modal-select">
+                <input type="hidden" id="editUserId">
+                <div class="form-grid">
+                    <input type="text" id="editMatricule" placeholder="Matricule" class="modal-select">
+                    <input type="email" id="editEmail" placeholder="Email" class="modal-select">
+                    <input type="text" id="editNom" placeholder="Nom" class="modal-select">
+                    <input type="text" id="editPostnom" placeholder="Post-nom" class="modal-select">
+                    <input type="text" id="editPrenom" placeholder="Prénom" class="modal-select">
+                    <input type="text" id="editDepartement" placeholder="Département ou service" class="modal-select">
+                    <select id="editPromotion" class="modal-select" multiple></select>
+                    <select id="editRole" class="modal-select">
                     <option value="etudiant">Étudiant</option>
                     <option value="enseignant">Professeur</option>
                     <option value="admin">Administrateur</option>
@@ -139,9 +147,38 @@
                 <button type="button" class="btn-modal-cancel" onclick="closeEditModal()">Annuler</button>
                 <button type="button" class="btn-modal-confirm" onclick="saveUserChanges()">Enregistrer</button>
             </div>
+            <p id="editFormMessage" class="admin-form-message"></p>
         </div>
     </div>
 
+    <div id="passwordModal" class="logout-modal" style="display: none;">
+        <div class="logout-modal-content" style="max-width: 480px; text-align: left;">
+            <h3>Réinitialiser le mot de passe</h3>
+            <input type="hidden" id="resetMatricule">
+            <input type="password" id="resetPassword" placeholder="Nouveau mot de passe" class="modal-select">
+            <input type="password" id="resetConfirmPassword" placeholder="Confirmer le mot de passe" class="modal-select">
+            <p id="resetFormMessage" class="admin-form-message"></p>
+            <div class="logout-modal-actions">
+                <button type="button" class="btn-modal-cancel" id="btnCancelReset">Annuler</button>
+                <button type="button" class="btn-modal-confirm" id="btnSaveReset">Enregistrer</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="logoutModal" class="logout-modal">
+        <div class="logout-modal-content">
+            <i class="fa-solid fa-arrow-right-from-bracket" style="font-size: 2rem; color: #dc2626; margin-bottom: 15px;"></i>
+            <h3>Confirmation</h3>
+            <p>Voulez-vous vraiment vous déconnecter de votre session administrateur ?</p>
+            <div class="logout-modal-actions">
+                <button type="button" class="btn-modal-cancel" id="btnCancelLogout">Annuler</button>
+                <a href="../login.html" class="btn-modal-confirm" id="confirmLogout">Se déconnecter</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="admin-common.js"></script>
+    <script src="../shared/promotions.js"></script>
     <script src="utilisateurs.js"></script>
 </body>
 </html>

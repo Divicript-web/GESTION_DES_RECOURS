@@ -40,6 +40,49 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-
 .input-group { display: flex; gap: 10px; margin-top: 10px; }
 .input-group input { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
 .btn-action-sm { background: var(--primary-blue); color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; }
+.date-range-group { display: grid; grid-template-columns: auto 1fr; gap: 8px 10px; align-items: center; margin-top: 16px; }
+.date-range-group label { color: #475569; font-size: 0.85rem; font-weight: 700; }
+.date-range-group input { padding: 9px 10px; border: 1px solid #cbd5e1; border-radius: 5px; font: inherit; }
+.date-range-group .btn-action-sm { grid-column: 1 / -1; }
+.settings-hint { margin: 10px 0 0; color: #64748b; font-size: 0.85rem; line-height: 1.4; }
+.system-status-panel {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 14px;
+    align-items: center;
+    padding: 16px;
+    border: 1px solid #dbeafe;
+    border-radius: 8px;
+    background: #f8fafc;
+}
+.system-status-panel.is-open { border-color: #a7f3d0; background: #f0fdf4; }
+.system-status-panel.is-closed { border-color: #fecaca; background: #fef2f2; }
+.system-status-panel.is-scheduled { border-color: #fed7aa; background: #fff7ed; }
+.system-status-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    display: grid;
+    place-items: center;
+    color: white;
+    background: var(--accent-green);
+    font-size: 1.1rem;
+}
+.system-status-panel.is-closed .system-status-icon { background: #dc2626; }
+.system-status-panel.is-scheduled .system-status-icon { background: var(--accent-orange); }
+.system-status-content h4 { margin: 5px 0 3px; color: var(--primary-blue); font-size: 1.05rem; }
+.system-status-content p { margin: 0; color: #475569; line-height: 1.45; }
+.system-status-badge {
+    display: inline-flex;
+    width: fit-content;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: rgba(13, 59, 102, 0.08);
+    color: var(--primary-blue);
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
 
 /* --- TABLEAU --- */
 .table-section { background: white; padding: 20px; border-radius: 8px; border: 1px solid var(--border-color); }
@@ -81,6 +124,8 @@ th { background-color: #f8fafc; font-size: 0.85rem; text-transform: uppercase; }
     
     /* Panneau de contrôle : Boutons en pleine largeur */
     .input-group { flex-direction: column; }
+    .date-range-group { grid-template-columns: 1fr; }
+    .date-range-group .btn-action-sm { width: 100%; }
     
     /* Tableau : Rendu horizontalement scrollable */
     .table-responsive { 

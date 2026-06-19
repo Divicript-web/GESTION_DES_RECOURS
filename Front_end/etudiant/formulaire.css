@@ -435,3 +435,284 @@ textarea { resize: vertical; }
 .back-nav-container {
     margin-bottom: 15px;
 }
+
+/* ==========================================================================
+   AMÉLIORATION DU FORMULAIRE DE DÉPÔT
+   ========================================================================== */
+.course-block {
+    position: relative;
+    background: #f8fafc;
+    border: 1px solid #dbe3ee;
+    border-left: 4px solid var(--primary-blue);
+    border-radius: 10px;
+    padding: 22px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.course-block.has-error {
+    border-color: #fca5a5;
+    border-left-color: #dc2626;
+    box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.08);
+}
+
+.block-title {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 18px;
+    color: var(--primary-blue);
+}
+
+.reason-select {
+    margin-bottom: 12px;
+}
+
+.sub-label {
+    margin-top: 14px;
+}
+
+.field-help {
+    margin-top: 7px;
+    color: #64748b;
+    font-size: 0.82rem;
+}
+
+.course-error {
+    min-height: 20px;
+    margin: 8px 0 0;
+    color: #b91c1c;
+    font-size: 0.88rem;
+    font-weight: 600;
+}
+
+.eval-checkboxes label {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    user-select: none;
+}
+
+.file-drop-zone {
+    display: grid;
+    gap: 8px;
+    place-items: center;
+    min-height: 122px;
+    border-radius: 10px;
+    background: #ffffff;
+}
+
+.file-drop-zone i {
+    color: #0d3b66;
+    font-size: 1.7rem;
+}
+
+.file-drop-zone:focus-visible {
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 4px rgba(0, 86, 179, 0.1);
+    outline: none;
+}
+
+.file-label-text {
+    margin-top: 0;
+    color: #0f172a;
+    font-size: 0.92rem;
+    font-weight: 700;
+}
+
+.file-specs {
+    display: block;
+    color: #64748b;
+    font-size: 0.78rem;
+}
+
+.file-selected {
+    margin-top: 12px;
+}
+
+.selected-file-card,
+.preview-file-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+    padding: 10px;
+    border: 1px solid #dbe3ee;
+    border-radius: 9px;
+    background: #ffffff;
+}
+
+.selected-file-icon {
+    display: inline-flex;
+    flex: 0 0 38px;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    background: #e2e8f0;
+    color: #475569;
+    font-size: 1rem;
+}
+
+.selected-file-icon.type-image {
+    background: #e0f2fe;
+    color: #0369a1;
+}
+
+.selected-file-icon.type-pdf {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.selected-file-icon.type-word {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.selected-file-icon.type-excel {
+    background: #dcfce7;
+    color: #047857;
+}
+
+.selected-file-info {
+    min-width: 0;
+    flex: 1;
+}
+
+.selected-file-info strong,
+.preview-file-card strong {
+    display: block;
+    overflow: hidden;
+    color: #0f172a;
+    font-size: 0.9rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.selected-file-info span,
+.preview-file-card span {
+    display: block;
+    color: #64748b;
+    font-size: 0.78rem;
+}
+
+.selected-file-thumb {
+    flex: 0 0 54px;
+    width: 54px;
+    height: 54px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 1px solid #e2e8f0;
+}
+
+.btn-remove-file,
+.btn-preview-file {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 34px;
+    width: 34px;
+    height: 34px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #f8fafc;
+    color: #475569;
+    cursor: pointer;
+    font-size: 0.95rem;
+}
+
+.btn-remove-file:hover {
+    border-color: #fecaca;
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.btn-preview-file:hover {
+    border-color: #bfdbfe;
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.preview-file-card {
+    align-items: center;
+}
+
+.preview-file-card img {
+    width: 74px;
+    height: 58px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 1px solid #e2e8f0;
+}
+
+.preview-file-card div {
+    min-width: 0;
+    flex: 1;
+}
+
+.empty-file-state {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #64748b;
+}
+
+.feedback-modal-content {
+    max-width: 440px;
+}
+
+.feedback-modal-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 58px;
+    height: 58px;
+    margin: 0 auto 16px;
+    border-radius: 50%;
+    background: #e0f2fe;
+    color: #0369a1;
+    font-size: 1.7rem;
+}
+
+.feedback-modal-icon.success {
+    background: #d1fae5;
+    color: #059669;
+}
+
+.feedback-modal-icon.danger {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.feedback-modal-icon.warning {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+#feedbackModalConfirm {
+    justify-content: center;
+}
+
+.btn-submit:disabled,
+.btn-modal-cancel:disabled,
+.preview-close-btn:disabled {
+    cursor: wait;
+    opacity: 0.68;
+}
+
+@media (max-width: 600px) {
+    .course-block {
+        padding: 18px;
+    }
+
+    .selected-file-card,
+    .preview-file-card {
+        align-items: flex-start;
+    }
+
+    .selected-file-thumb,
+    .preview-file-card img {
+        width: 48px;
+        height: 48px;
+    }
+}

@@ -3,6 +3,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const registerForm = document.getElementById("registerForm");
     const registerAlert = document.getElementById("registerAlert");
     const registerSuccess = document.getElementById("registerSuccess");
+    const promotionSelect = document.getElementById("promotion");
+
+    if (window.PromotionOptions) {
+        window.PromotionOptions.applyToSelect(promotionSelect);
+    }
 
     function showMessage(element, message) {
         element.innerHTML = message;
@@ -28,6 +33,11 @@ document.addEventListener("DOMContentLoaded", () => {
             password: document.getElementById("password").value,
             confirmPassword: document.getElementById("confirmPassword").value,
         };
+
+        if (!window.PromotionOptions || !window.PromotionOptions.isValid(payload.promotion)) {
+            showMessage(registerAlert, '<i class="fa-solid fa-triangle-exclamation"></i> Veuillez choisir une promotion valide.');
+            return;
+        }
 
         try {
             const response = await fetch(`${API_ORIGIN}/register`, {

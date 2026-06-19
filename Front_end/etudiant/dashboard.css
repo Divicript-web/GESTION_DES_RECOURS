@@ -322,6 +322,7 @@ tr:hover td {
 }
 
 .status-badge.pending { background-color: var(--status-pending-bg); color: var(--status-pending-text); }
+.status-badge.info { background-color: #e0f2fe; color: #0369a1; }
 .status-badge.success { background-color: var(--status-success-bg); color: var(--status-success-text); }
 .status-badge.danger { background-color: var(--status-danger-bg); color: var(--status-danger-text); }
 

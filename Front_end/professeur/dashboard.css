@@ -93,6 +93,67 @@ th { background-color: #f8fafc; font-size: 0.85rem; text-transform: uppercase; }
 .modal-select { width: 100%; padding: 12px; margin: 20px 0; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; }
 .btn-action { background: var(--primary-blue); color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.85rem; border: none; cursor: pointer; }
 .btn-action:hover { background: #1a5a96; }
+
+.treatment-modal-content {
+    max-width: 640px;
+    text-align: left;
+}
+
+.treatment-details {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin: 18px 0;
+}
+
+.treatment-details div {
+    background: #f8fafc;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 10px 12px;
+}
+
+.treatment-details strong {
+    display: block;
+    color: #64748b;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+}
+
+.treatment-details span {
+    display: block;
+    color: #1f2937;
+    line-height: 1.4;
+}
+
+.form-group {
+    margin-top: 14px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--primary-blue);
+}
+
+.modal-textarea {
+    width: 100%;
+    box-sizing: border-box;
+    resize: vertical;
+    padding: 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font: inherit;
+}
+
+.modal-help {
+    min-height: 20px;
+    margin: 10px 0 0;
+    color: #c2410c;
+    font-size: 0.9rem;
+}
 /* ==========================================================================
    STYLE AIGUILLAGE AMÉLIORÉ
    ========================================================================== */

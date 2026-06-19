@@ -48,11 +48,16 @@ th, td { padding: 15px; border-bottom: 1px solid var(--border-color); text-align
 th { background-color: #f8fafc; font-size: 0.85rem; text-transform: uppercase; }
 .status { padding: 5px 10px; border-radius: 15px; font-size: 0.8rem; font-weight: 600; }
 .status.pending { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
+.status.assigned { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+.status.treated { background: #eef2ff; color: #4338ca; border: 1px solid #c7d2fe; }
+.status.success { background: #dcfce7; color: #047857; border: 1px solid #bbf7d0; }
+.status.danger { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
 .btn-action { background: var(--primary-blue); color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.85rem; }
 
 /* --- MODALE --- */
 .logout-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 9999; }
 .logout-modal-content { background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 400px; text-align: center; }
+.assign-modal-content { max-width: 720px; text-align: left; }
 .logout-modal-actions { display: flex; gap: 15px; justify-content: center; margin-top: 25px; }
 .btn-modal-confirm { background: #dc2626; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; }
 .btn-modal-cancel { background: #e2e8f0; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
@@ -91,6 +96,7 @@ th { background-color: #f8fafc; font-size: 0.85rem; text-transform: uppercase; }
     .nav-brand p { display: none; }
 }
 .modal-select { width: 100%; padding: 12px; margin: 20px 0; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; }
+.modal-help { min-height: 20px; margin: 0; color: #c2410c; font-size: 0.9rem; }
 .btn-action { background: var(--primary-blue); color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.85rem; border: none; cursor: pointer; }
 .btn-action:hover { background: #1a5a96; }
 

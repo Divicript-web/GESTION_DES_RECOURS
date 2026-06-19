@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Administration - Aiguillage</title>
     <link rel="stylesheet" href="aiguillage.css">
+    <link rel="stylesheet" href="admin-common.css">
+    <link rel="stylesheet" href="../shared/file-attachment.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -49,11 +51,7 @@
                     </thead>
                     <tbody id="to-assign-body">
                         <tr>
-                            <td>23312</td>
-                            <td>NGBAPE Jérémie</td>
-                            <td>INFO-315</td>
-                            <td><span class="status pending">À assigner</span></td>
-                            <td><button class="btn-action" onclick="openAssignModal(23312)">Assigner</button></td>
+                            <td colspan="5" style="text-align: center;">Chargement...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -61,7 +59,29 @@
         </section>
 
         <section class="table-section" style="margin-top: 40px;">
-            <h3>2. Recours traités (Prêts à publier)</h3>
+            <h3>2. Recours assignés / en traitement</h3>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Matricule</th>
+                            <th>Étudiant</th>
+                            <th>Cours</th>
+                            <th>Professeur</th>
+                            <th>Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody id="assigned-body">
+                        <tr>
+                            <td colspan="5" style="text-align: center;">Chargement...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="table-section" style="margin-top: 40px;">
+            <h3>3. Recours traités par les professeurs</h3>
             <div class="table-responsive">
                 <table>
                     <thead>
@@ -75,11 +95,7 @@
                     </thead>
                     <tbody id="to-publish-body">
                         <tr>
-                            <td>23312</td>
-                            <td>NGBAPE Jérémie</td>
-                            <td>INFO-315</td>
-                            <td><strong>Fondé</strong> - Note révisée à 15/20</td>
-                            <td><button class="btn-action-green" onclick="publishResult(23312)">Publier à l'étudiant</button></td>
+                            <td colspan="5" style="text-align: center;">Chargement...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -88,16 +104,16 @@
     </div>
 
     <div id="assignModal" class="logout-modal">
-        <div class="logout-modal-content">
+        <div class="logout-modal-content assign-modal-content">
             <h3>Assigner au Professeur</h3>
+            <div id="assignRecoursDetails" class="admin-details-grid"></div>
             <select id="profSelect" class="modal-select">
-                <option>Sélectionner un enseignant...</option>
-                <option>Prof. Dr. KASONGO</option>
-                <option>CT. MWENYEMALI</option>
+                <option value="">Chargement des enseignants...</option>
             </select>
+            <p id="assignModalMessage" class="modal-help"></p>
             <div class="logout-modal-actions">
                 <button class="btn-modal-cancel" id="btnCancelAssign">Annuler</button>
-                <button class="btn-modal-confirm">Confirmer</button>
+                <button class="btn-modal-confirm" id="btnConfirmAssign">Confirmer</button>
             </div>
         </div>
     </div>
@@ -109,11 +125,13 @@
             <p>Voulez-vous vraiment vous déconnecter ?</p>
             <div class="logout-modal-actions">
                 <button class="btn-modal-cancel" id="btnCancelLogout">Annuler</button>
-                <a href="../login.html" class="btn-modal-confirm">Se déconnecter</a>
+                <a href="../login.html" class="btn-modal-confirm" id="confirmLogout">Se déconnecter</a>
             </div>
         </div>
     </div>
 
+    <script src="admin-common.js"></script>
+    <script src="../shared/file-attachment.js"></script>
     <script src="aiguillage.js"></script>
 </body>
 </html>

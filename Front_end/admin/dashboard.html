@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Administration - Dashboard</title>
     <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="admin-common.css">
+    <link rel="stylesheet" href="../shared/file-attachment.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -56,15 +58,29 @@
                 <h3><i class="fa-solid fa-bullhorn"></i> Message flottant étudiant</h3>
                 <div class="input-group">
                     <input type="text" id="msgInput" placeholder="Ex: Dépôt des recours ouvert jusqu'au 10 juin...">
-                    <button class="btn-action-sm">Diffuser</button>
+                    <button class="btn-action-sm" id="broadcastButton" type="button">Diffuser</button>
                 </div>
             </div>
             <div class="control-card">
-                <h3><i class="fa-solid fa-lock"></i> État du système</h3>
-                <div class="toggle-group">
-                    <span>Période de dépôt :</span>
-                    <button id="toggleSystemBtn" class="btn-status active">Ouvert</button>
+                <h3><i class="fa-solid fa-gauge-high"></i> État automatique du système</h3>
+                <div class="system-status-panel" id="systemStatusPanel">
+                    <div class="system-status-icon" id="periodStatusIcon">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                    <div class="system-status-content">
+                        <span class="system-status-badge" id="periodStatusBadge">Calcul automatique</span>
+                        <h4 id="periodStatusTitle">Chargement...</h4>
+                        <p id="periodStatusText">Analyse de la période de dépôt en cours.</p>
+                    </div>
                 </div>
+                <div class="date-range-group">
+                    <label for="recoursStartDate">Début</label>
+                    <input type="date" id="recoursStartDate">
+                    <label for="recoursEndDate">Fin</label>
+                    <input type="date" id="recoursEndDate">
+                    <button class="btn-action-sm" id="savePeriodButton" type="button">Mettre à jour la période</button>
+                </div>
+                <p class="settings-hint">L'ouverture et la fermeture des dépôts sont calculées automatiquement à partir de ces dates.</p>
             </div>
         </section>
 
@@ -103,6 +119,8 @@
         </div>
     </div>
 
+    <script src="admin-common.js"></script>
+    <script src="../shared/file-attachment.js"></script>
     <script src="dashboard.js"></script>
 </body>
 </html>

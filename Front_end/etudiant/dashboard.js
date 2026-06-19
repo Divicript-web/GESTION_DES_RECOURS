@@ -63,13 +63,14 @@ function setupDetailsModal(detailsModal, closeDetailsModal, btnCloseDetails) {
 
 async function loadDashboard(token) {
     try {
-        const [profileResponse, recoursResponse] = await Promise.all([
+        const [profileResponse, recoursResponse, settingsResponse] = await Promise.all([
             fetch(`${API_ORIGIN}/profile`, {
                 headers: { Authorization: `Bearer ${token}` },
             }),
             fetch(`${API_ORIGIN}/api/recours/me`, {
                 headers: { Authorization: `Bearer ${token}` },
             }),
+            fetch(`${API_ORIGIN}/api/settings/public`),
         ]);
 
         if (profileResponse.status === 401 || recoursResponse.status === 401) {
@@ -81,16 +82,52 @@ async function loadDashboard(token) {
 
         const profile = await profileResponse.json();
         const recoursData = await recoursResponse.json();
+        const settingsData = await settingsResponse.json();
 
         if (!profileResponse.ok) throw new Error(profile.message || 'Profil introuvable');
         if (!recoursResponse.ok) throw new Error(recoursData.message || 'Recours introuvables');
 
+        renderSettings(settingsData);
         renderUser(profile);
         renderRecours(recoursData.recours || []);
     } catch (error) {
         console.error(error);
         renderError('Impossible de charger vos recours pour le moment.');
     }
+}
+
+function renderSettings(settings) {
+    const bannerText = document.querySelector('.banner-text');
+    const newRecoursButton = document.querySelector('.btn-new-recours');
+
+    if (bannerText && settings.announcement_message) {
+        const periodText = buildPeriodText(settings);
+        bannerText.innerHTML = `<strong>Message du Décanat :</strong> ${escapeHtml(settings.announcement_message)}${periodText ? `<br>${escapeHtml(periodText)}` : ''}`;
+    }
+
+    if (newRecoursButton && settings.recours_open === false) {
+        newRecoursButton.disabled = true;
+        newRecoursButton.style.opacity = '0.65';
+        newRecoursButton.style.cursor = 'not-allowed';
+        newRecoursButton.querySelector('span').textContent = 'Dépôt fermé';
+        newRecoursButton.title = settings.recours_status_message || 'La période de dépôt est fermée';
+    }
+}
+
+function buildPeriodText(settings) {
+    if (settings.recours_start_date && settings.recours_end_date) {
+        return `Période de dépôt : du ${formatDate(settings.recours_start_date)} au ${formatDate(settings.recours_end_date)}.`;
+    }
+
+    if (settings.recours_start_date) {
+        return `Période de dépôt : à partir du ${formatDate(settings.recours_start_date)}.`;
+    }
+
+    if (settings.recours_end_date) {
+        return `Période de dépôt : jusqu'au ${formatDate(settings.recours_end_date)}.`;
+    }
+
+    return settings.recours_status_message || '';
 }
 
 function renderUser(user) {
@@ -101,8 +138,8 @@ function renderUser(user) {
 
 function renderRecours(recoursList) {
     const total = recoursList.length;
-    const pending = recoursList.filter((item) => item.status === 'pending').length;
-    const validated = recoursList.filter((item) => item.status === 'validated' || item.status === 'success').length;
+    const pending = recoursList.filter((item) => ['pending', 'assigned'].includes(item.status)).length;
+    const validated = recoursList.filter((item) => ['published', 'validated', 'success'].includes(item.status)).length;
 
     document.getElementById('totalRecours').textContent = total;
     document.getElementById('pendingRecours').textContent = pending;
@@ -184,16 +221,51 @@ function openDetailsModal(recours, status, evaluations) {
             <strong>Preuve jointe</strong>
             <span>${renderProof(recours)}</span>
         </div>
+        ${renderPublishedResponse(recours)}
     `;
 
     modal.style.display = 'flex';
 }
 
-function renderProof(recours) {
-    if (!recours.proof_name) return 'Aucune';
-    if (!recours.proof_path) return escapeHtml(recours.proof_name);
+function renderPublishedResponse(recours) {
+    if (recours.status !== 'published') {
+        return `
+            <div class="details-row">
+                <strong>Réponse finale</strong>
+                <span>La réponse sera visible après publication par l'administration.</span>
+            </div>
+        `;
+    }
 
-    return `<a href="${escapeHtml(API_ORIGIN + recours.proof_path)}" target="_blank" rel="noopener">${escapeHtml(recours.proof_name)}</a>`;
+    return `
+        <div class="details-row">
+            <strong>Décision finale</strong>
+            <span>${escapeHtml(recours.professor_decision || '-')}</span>
+        </div>
+        <div class="details-row">
+            <strong>Réponse finale</strong>
+            <p>${escapeHtml(recours.professor_response || '-')}</p>
+        </div>
+        <div class="details-row">
+            <strong>Date de publication</strong>
+            <span>${formatDate(recours.published_at)}</span>
+        </div>
+    `;
+}
+
+function renderProof(recours) {
+    if (!window.FileAttachment) {
+        if (!recours.proof_name) return 'Aucune';
+        if (!recours.proof_path) return escapeHtml(recours.proof_name);
+        return `<a href="${escapeHtml(API_ORIGIN + recours.proof_path)}" target="_blank" rel="noopener">${escapeHtml(recours.proof_name)}</a>`;
+    }
+
+    return window.FileAttachment.render({
+        name: recours.proof_name,
+        path: recours.proof_path,
+        apiOrigin: API_ORIGIN,
+        emptyText: 'Aucune preuve jointe',
+    });
 }
 
 function renderError(message) {
@@ -206,7 +278,10 @@ function renderError(message) {
 
 function getStatusInfo(status) {
     const statuses = {
-        pending: { label: 'En attente', className: 'pending' },
+        pending: { label: 'Soumis', className: 'pending' },
+        assigned: { label: 'En traitement', className: 'info' },
+        treated: { label: 'Traité', className: 'info' },
+        published: { label: 'Publié', className: 'success' },
         validated: { label: 'Validé', className: 'success' },
         success: { label: 'Validé', className: 'success' },
         rejected: { label: 'Rejeté', className: 'danger' },
@@ -217,6 +292,11 @@ function getStatusInfo(status) {
 
 function formatDate(value) {
     if (!value) return '-';
+
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+        const [year, month, day] = value.split('-').map(Number);
+        return new Intl.DateTimeFormat('fr-FR').format(new Date(year, month - 1, day));
+    }
 
     return new Intl.DateTimeFormat('fr-FR', {
         day: '2-digit',
