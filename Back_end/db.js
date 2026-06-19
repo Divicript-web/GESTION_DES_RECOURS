@@ -1,85 +1,100 @@
-require('dotenv').config({ quiet: true });
-
 const fs = require('fs');
 const path = require('path');
-const Database = require('better-sqlite3');
+const { Pool } = require('pg');
 
-const configuredPath = process.env.SQLITE_PATH || './data/recours.sqlite';
-const databasePath = path.isAbsolute(configuredPath)
-  ? configuredPath
-  : path.join(__dirname, configuredPath);
+require('dotenv').config({ path: path.join(__dirname, '.env'), quiet: true });
 
-fs.mkdirSync(path.dirname(databasePath), { recursive: true });
+const dbConfig = {
+  host: process.env.DB_HOST || '127.0.0.1',
+  port: Number(process.env.DB_PORT || 5432),
+  database: process.env.DB_NAME || 'gestion_recours',
+  user: process.env.DB_USER || 'recours_user',
+  password: process.env.DB_PASSWORD || 'recours_password',
+};
 
-const database = new Database(databasePath);
-database.pragma('journal_mode = WAL');
-database.pragma('foreign_keys = ON');
+const sslEnabled = process.env.DB_SSL === 'true';
+const pool = new Pool({
+  ...dbConfig,
+  ssl: sslEnabled
+    ? { rejectUnauthorized: process.env.DB_SSL_REJECT_UNAUTHORIZED !== 'false' }
+    : false,
+});
 
-database.exec(`
-  CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    matricule TEXT UNIQUE NOT NULL,
-    nom TEXT NOT NULL,
-    post_nom TEXT NOT NULL,
-    prenom TEXT NOT NULL,
-    role TEXT NOT NULL DEFAULT 'etudiant',
-    departement TEXT,
-    promotion TEXT,
-    password_hash TEXT NOT NULL,
-    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-  );
+const migrationsDir = path.join(__dirname, 'migrations');
 
-  CREATE TABLE IF NOT EXISTS recours (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
-    course_code TEXT NOT NULL,
-    course_title TEXT NOT NULL,
-    evaluation_types TEXT NOT NULL,
-    justification TEXT NOT NULL,
-    proof_name TEXT,
-    proof_path TEXT,
-    status TEXT NOT NULL DEFAULT 'pending',
-    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-  );
-`);
-
-const recoursColumns = database.prepare('PRAGMA table_info(recours)').all().map((column) => column.name);
-if (!recoursColumns.includes('proof_path')) {
-  database.exec('ALTER TABLE recours ADD COLUMN proof_path TEXT');
+async function query(text, params = []) {
+  return pool.query(text, params);
 }
 
-function normalizeQuery(text) {
-  return text.replace(/\$(\d+)/g, '?');
-}
-
-function query(text, params = []) {
-  const sql = normalizeQuery(text);
-  const statement = database.prepare(sql);
-  const returnsRows = /^\s*SELECT\b/i.test(sql) || /\bRETURNING\b/i.test(sql);
-
-  if (returnsRows) {
-    const rows = statement.all(params);
-    return { rows, rowCount: rows.length };
-  }
-
-  const result = statement.run(params);
-  return { rows: [], rowCount: result.changes };
-}
-
-function isAvailable() {
+async function isAvailable() {
   try {
-    database.prepare('SELECT 1').get();
+    await pool.query('SELECT 1');
     return true;
   } catch (err) {
     return false;
   }
 }
 
+async function runMigrations() {
+  let client;
+
+  try {
+    client = await pool.connect();
+    await client.query('BEGIN');
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS schema_migrations (
+        id TEXT PRIMARY KEY,
+        applied_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    const migrationFiles = fs.existsSync(migrationsDir)
+      ? fs.readdirSync(migrationsDir).filter((file) => file.endsWith('.sql')).sort()
+      : [];
+
+    for (const file of migrationFiles) {
+      const existing = await client.query(
+        'SELECT id FROM schema_migrations WHERE id = $1',
+        [file]
+      );
+
+      if (existing.rows.length > 0) {
+        continue;
+      }
+
+      const sql = fs.readFileSync(path.join(migrationsDir, file), 'utf8');
+      await client.query(sql);
+      await client.query('INSERT INTO schema_migrations (id) VALUES ($1)', [file]);
+    }
+
+    await client.query('COMMIT');
+  } catch (err) {
+    if (client) {
+      await client.query('ROLLBACK');
+    }
+
+    if (err.code === '28P01') {
+      err.message = `Authentification PostgreSQL refusee pour l'utilisateur "${dbConfig.user}". Verifiez DB_USER et DB_PASSWORD dans Back_end/.env.`;
+    } else if (err.code === '3D000') {
+      err.message = `La base PostgreSQL "${dbConfig.database}" est introuvable. Creez-la ou corrigez DB_NAME dans Back_end/.env.`;
+    }
+
+    throw err;
+  } finally {
+    if (client) {
+      client.release();
+    }
+  }
+}
+
+async function close() {
+  await pool.end();
+}
+
 module.exports = {
   query,
   isAvailable,
-  databasePath,
+  runMigrations,
+  close,
+  dbConfig,
 };

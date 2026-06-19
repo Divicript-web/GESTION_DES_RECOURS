@@ -40,9 +40,25 @@ const upload = multer({
         files: 4,
     },
     fileFilter: (req, file, cb) => {
-        const allowedMimeTypes = ['application/pdf', 'image/jpeg', 'image/png'];
-        if (!allowedMimeTypes.includes(file.mimetype)) {
-            return cb(new Error('Format de fichier non autorise. Utilisez PDF, JPG ou PNG.'));
+        const allowedMimeTypes = new Set([
+            'application/pdf',
+            'image/jpeg',
+            'image/png',
+            'image/webp',
+            'application/msword',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'application/vnd.ms-excel',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'text/csv',
+            'application/csv',
+            'text/plain',
+        ]);
+        const allowedExtensions = new Set(['.pdf', '.jpg', '.jpeg', '.png', '.webp', '.doc', '.docx', '.xls', '.xlsx', '.csv', '.txt']);
+        const extension = path.extname(file.originalname).toLowerCase();
+        const hasReliableMimeType = file.mimetype && file.mimetype !== 'application/octet-stream';
+
+        if (!allowedExtensions.has(extension) || (hasReliableMimeType && !allowedMimeTypes.has(file.mimetype))) {
+            return cb(new Error('Format de fichier non autorise. Utilisez PDF, image, Word, Excel, CSV ou TXT.'));
         }
         cb(null, true);
     },
@@ -62,6 +78,7 @@ function uploadRecoursFiles(req, res, next) {
 app.use(cors());
 app.use(express.json());
 app.use(express.static(FRONTEND_DIR));
+app.use('/uploads/recours', express.static(UPLOAD_DIR));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 let demoUsers = [
@@ -95,7 +112,7 @@ let demoUsers = [
         prenom: 'Divin',
         role: 'etudiant',
         departement: 'Sciences Economiques',
-        promotion: 'L2',
+        promotion: 'LICENCE 2',
         password_hash: bcrypt.hashSync(DEFAULT_PASSWORD, 10),
     },
     {
@@ -112,6 +129,72 @@ let demoUsers = [
 ];
 
 const VALID_ROLES = ['etudiant', 'enseignant', 'admin', 'superadmin'];
+const VALID_PROMOTIONS = ['LICENCE 1', 'LICENCE 2', 'LICENCE 3', 'MASTER 1', 'MASTER 2'];
+const PROMOTION_ALIASES = {
+    L1: 'LICENCE 1',
+    'L 1': 'LICENCE 1',
+    LICENCE1: 'LICENCE 1',
+    'LICENCE 1': 'LICENCE 1',
+    L2: 'LICENCE 2',
+    'L 2': 'LICENCE 2',
+    LICENCE2: 'LICENCE 2',
+    'LICENCE 2': 'LICENCE 2',
+    L3: 'LICENCE 3',
+    'L 3': 'LICENCE 3',
+    LICENCE3: 'LICENCE 3',
+    'LICENCE 3': 'LICENCE 3',
+    M1: 'MASTER 1',
+    'M 1': 'MASTER 1',
+    MASTER1: 'MASTER 1',
+    'MASTER 1': 'MASTER 1',
+    M2: 'MASTER 2',
+    'M 2': 'MASTER 2',
+    MASTER2: 'MASTER 2',
+    'MASTER 2': 'MASTER 2',
+};
+
+function normalizePromotion(value) {
+    const rawValue = String(value || '').trim().toUpperCase().replace(/\s+/g, ' ');
+    return PROMOTION_ALIASES[rawValue] || PROMOTION_ALIASES[rawValue.replace(/\s/g, '')] || rawValue;
+}
+
+function validatePromotion(value, { required = true, label = 'Promotion' } = {}) {
+    const normalized = normalizePromotion(value);
+
+    if (!normalized) {
+        if (!required) return '';
+        const error = new Error(`${label} obligatoire`);
+        error.status = 400;
+        throw error;
+    }
+
+    if (!VALID_PROMOTIONS.includes(normalized)) {
+        const error = new Error(`${label} invalide. Valeurs autorisees : ${VALID_PROMOTIONS.join(', ')}`);
+        error.status = 400;
+        throw error;
+    }
+
+    return normalized;
+}
+
+function normalizePromotionsList(value, { required = false, label = 'Promotions' } = {}) {
+    const items = Array.isArray(value)
+        ? value
+        : String(value || '')
+            .split(',')
+            .map((item) => item.trim())
+            .filter(Boolean);
+
+    if (items.length === 0) {
+        if (!required) return '';
+        const error = new Error(`${label} obligatoires`);
+        error.status = 400;
+        throw error;
+    }
+
+    return [...new Set(items.map((item) => validatePromotion(item, { required: true, label })))]
+        .join(', ');
+}
 
 function publicUser(user) {
     if (!user) return null;
@@ -134,7 +217,7 @@ async function findUserByMatricule(matricule) {
 
 async function findUserById(id) {
     if (await databaseReady()) {
-        const result = await db.query('SELECT id, matricule, nom, post_nom, prenom, role, departement, promotion FROM users WHERE id = $1', [id]);
+        const result = await db.query('SELECT id, matricule, email, nom, post_nom, prenom, role, departement, promotion FROM users WHERE id = $1', [id]);
         return result.rows[0] || null;
     }
 
@@ -143,21 +226,34 @@ async function findUserById(id) {
 
 async function listUsers() {
     if (await databaseReady()) {
-        const result = await db.query('SELECT id, matricule, nom, post_nom, prenom, role, departement, promotion FROM users ORDER BY id DESC');
+        const result = await db.query('SELECT id, matricule, email, nom, post_nom, prenom, role, departement, promotion FROM users ORDER BY id DESC');
         return result.rows;
     }
 
     return demoUsers.map(publicUser);
 }
 
+async function listProfessors() {
+    const users = await listUsers();
+    return users
+        .filter(user => user.role === 'enseignant')
+        .map(user => ({
+            ...user,
+            fullName: [user.prenom, user.nom, user.post_nom].filter(Boolean).join(' '),
+        }));
+}
+
 async function createUser(payload) {
     const matricule = String(payload.matricule || '').trim();
+    const email = String(payload.email || '').trim();
     const nom = String(payload.nom || '').trim();
     const post_nom = String(payload.post_nom || payload.postnom || '').trim();
     const prenom = String(payload.prenom || '').trim();
     const role = payload.role || 'etudiant';
     const departement = String(payload.departement || '').trim();
-    const promotion = String(payload.promotion || '').trim();
+    const promotion = role === 'etudiant'
+        ? validatePromotion(payload.promotion, { required: true })
+        : normalizePromotionsList(payload.promotion, { required: role === 'enseignant' });
     const password = String(payload.password || DEFAULT_PASSWORD);
     const passwordHash = await bcrypt.hash(password, 10);
 
@@ -173,18 +269,39 @@ async function createUser(payload) {
         throw error;
     }
 
+    if (role === 'etudiant' && !departement) {
+        const error = new Error('Departement et promotion sont obligatoires pour un etudiant');
+        error.status = 400;
+        throw error;
+    }
+
+    if (role === 'enseignant' && !departement) {
+        const error = new Error('Departement et promotions sont obligatoires pour un enseignant');
+        error.status = 400;
+        throw error;
+    }
+
     if (await findUserByMatricule(matricule)) {
         const error = new Error('Ce matricule existe deja');
         error.status = 409;
         throw error;
     }
 
+    if (email && await databaseReady()) {
+        const existingEmail = await db.query('SELECT id FROM users WHERE lower(email) = lower($1) LIMIT 1', [email]);
+        if (existingEmail.rows.length > 0) {
+            const error = new Error('Cet email existe deja');
+            error.status = 409;
+            throw error;
+        }
+    }
+
     if (await databaseReady()) {
         const result = await db.query(
-            `INSERT INTO users (matricule, nom, post_nom, prenom, role, departement, promotion, password_hash)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-             RETURNING id, matricule, nom, post_nom, prenom, role, departement, promotion`,
-            [matricule, nom, post_nom, prenom, role, departement, promotion, passwordHash]
+            `INSERT INTO users (matricule, email, nom, post_nom, prenom, role, departement, promotion, password_hash)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+             RETURNING id, matricule, email, nom, post_nom, prenom, role, departement, promotion`,
+            [matricule, email || null, nom, post_nom, prenom, role, departement, promotion, passwordHash]
         );
         return result.rows[0];
     }
@@ -192,6 +309,7 @@ async function createUser(payload) {
     const user = {
         id: Math.max(...demoUsers.map(item => item.id), 0) + 1,
         matricule,
+        email,
         nom,
         post_nom,
         prenom,
@@ -207,10 +325,15 @@ async function createUser(payload) {
 async function updateUser(payload) {
     const id = Number(payload.id);
     const matricule = String(payload.matricule || '').trim();
+    const email = String(payload.email || '').trim();
     const nom = String(payload.nom || '').trim();
     const post_nom = String(payload.post_nom || '').trim();
     const prenom = String(payload.prenom || '').trim();
     const role = String(payload.role || 'etudiant').trim();
+    const departement = String(payload.departement || '').trim();
+    const promotion = role === 'etudiant'
+        ? validatePromotion(payload.promotion, { required: true })
+        : normalizePromotionsList(payload.promotion, { required: role === 'enseignant' });
 
     if (!id || !matricule || !nom || !post_nom || !prenom || !role) {
         const error = new Error('Tous les champs sont requis');
@@ -218,13 +341,41 @@ async function updateUser(payload) {
         throw error;
     }
 
+    if (!VALID_ROLES.includes(role)) {
+        const error = new Error('Role invalide');
+        error.status = 400;
+        throw error;
+    }
+
+    if (role === 'etudiant' && !departement) {
+        const error = new Error('Departement et promotion sont obligatoires pour un etudiant');
+        error.status = 400;
+        throw error;
+    }
+
+    if (role === 'enseignant' && !departement) {
+        const error = new Error('Departement et promotions sont obligatoires pour un enseignant');
+        error.status = 400;
+        throw error;
+    }
+
     if (await databaseReady()) {
+        if (email) {
+            const existingEmail = await db.query('SELECT id FROM users WHERE lower(email) = lower($1) AND id <> $2 LIMIT 1', [email, id]);
+            if (existingEmail.rows.length > 0) {
+                const error = new Error('Cet email existe deja');
+                error.status = 409;
+                throw error;
+            }
+        }
+
         const result = await db.query(
             `UPDATE users
-             SET matricule = $1, nom = $2, post_nom = $3, prenom = $4, role = $5
-             WHERE id = $6
-             RETURNING id, matricule, nom, post_nom, prenom, role, departement, promotion`,
-            [matricule, nom, post_nom, prenom, role, id]
+             SET matricule = $1, email = $2, nom = $3, post_nom = $4, prenom = $5,
+                 role = $6, departement = $7, promotion = $8, updated_at = CURRENT_TIMESTAMP
+             WHERE id = $9
+             RETURNING id, matricule, email, nom, post_nom, prenom, role, departement, promotion`,
+            [matricule, email || null, nom, post_nom, prenom, role, departement, promotion, id]
         );
         return result.rows[0] || null;
     }
@@ -232,12 +383,12 @@ async function updateUser(payload) {
     const index = demoUsers.findIndex(user => user.id === id);
     if (index === -1) return null;
 
-    demoUsers[index] = { ...demoUsers[index], matricule, nom, post_nom, prenom, role };
+    demoUsers[index] = { ...demoUsers[index], matricule, email, nom, post_nom, prenom, role, departement, promotion };
     return publicUser(demoUsers[index]);
 }
 
-async function resetPassword(matricule) {
-    const passwordHash = await bcrypt.hash(DEFAULT_PASSWORD, 10);
+async function resetPassword(matricule, newPassword = DEFAULT_PASSWORD) {
+    const passwordHash = await bcrypt.hash(newPassword, 10);
 
     if (await databaseReady()) {
         const result = await db.query(
@@ -250,6 +401,31 @@ async function resetPassword(matricule) {
     const user = await findUserByMatricule(matricule);
     if (!user) return false;
     user.password_hash = passwordHash;
+    return true;
+}
+
+async function deleteUser(id, currentUserId) {
+    const userId = Number(id);
+    if (!userId) {
+        const error = new Error('Utilisateur invalide');
+        error.status = 400;
+        throw error;
+    }
+
+    if (Number(currentUserId) === userId) {
+        const error = new Error('Vous ne pouvez pas supprimer votre propre compte');
+        error.status = 400;
+        throw error;
+    }
+
+    if (await databaseReady()) {
+        const result = await db.query('DELETE FROM users WHERE id = $1', [userId]);
+        return result.rowCount > 0;
+    }
+
+    const index = demoUsers.findIndex(user => user.id === userId);
+    if (index === -1) return false;
+    demoUsers.splice(index, 1);
     return true;
 }
 
@@ -279,7 +455,10 @@ async function changePassword(userId, currentPassword, newPassword) {
 
 async function listRecoursByUser(userId) {
     const result = await db.query(
-        `SELECT id, course_code, course_title, evaluation_types, justification, proof_name, proof_path, status, created_at
+        `SELECT id, course_code, course_title, evaluation_types, justification, proof_name, proof_path,
+                status, assigned_at, treated_at, published_at, created_at,
+                CASE WHEN status = 'published' THEN professor_response ELSE NULL END AS professor_response,
+                CASE WHEN status = 'published' THEN professor_decision ELSE NULL END AS professor_decision
          FROM recours
          WHERE user_id = $1
          ORDER BY created_at DESC, id DESC`,
@@ -295,16 +474,24 @@ async function listRecoursByUser(userId) {
 async function listAllRecours() {
     const result = await db.query(
         `SELECT r.id, r.course_code, r.course_title, r.evaluation_types, r.justification,
-                r.proof_name, r.proof_path, r.status, r.created_at,
-                u.matricule, u.nom, u.post_nom, u.prenom, u.departement, u.promotion
+                r.proof_name, r.proof_path, r.status, r.assigned_professor_id,
+                r.professor_response, r.professor_decision, r.assigned_at, r.treated_at,
+                r.published_at, r.created_at,
+                u.matricule, u.nom, u.post_nom, u.prenom, u.departement, u.promotion,
+                p.matricule AS assigned_professor_matricule,
+                p.nom AS assigned_professor_nom,
+                p.post_nom AS assigned_professor_post_nom,
+                p.prenom AS assigned_professor_prenom
          FROM recours r
          JOIN users u ON u.id = r.user_id
+         LEFT JOIN users p ON p.id = r.assigned_professor_id
          ORDER BY r.created_at DESC, r.id DESC`
     );
 
     return result.rows.map((recours) => ({
         ...recours,
         evaluation_types: JSON.parse(recours.evaluation_types || '[]'),
+        assignedProfessor: [recours.assigned_professor_prenom, recours.assigned_professor_nom, recours.assigned_professor_post_nom].filter(Boolean).join(' '),
     }));
 }
 
@@ -334,6 +521,355 @@ async function createRecours(userId, payload) {
         ...recours,
         evaluation_types: JSON.parse(recours.evaluation_types || '[]'),
     };
+}
+
+async function findRecoursById(recoursId) {
+    const result = await db.query(
+        `SELECT r.*, u.matricule, u.nom, u.post_nom, u.prenom
+         FROM recours r
+         JOIN users u ON u.id = r.user_id
+         WHERE r.id = $1`,
+        [recoursId]
+    );
+
+    const recours = result.rows[0];
+    if (!recours) return null;
+
+    return {
+        ...recours,
+        evaluation_types: JSON.parse(recours.evaluation_types || '[]'),
+    };
+}
+
+async function assignRecoursToProfessor(recoursId, professorId) {
+    const professor = await findUserById(professorId);
+    if (!professor || professor.role !== 'enseignant') {
+        const error = new Error('Professeur introuvable');
+        error.status = 404;
+        throw error;
+    }
+
+    const recours = await findRecoursById(recoursId);
+    if (!recours) {
+        const error = new Error('Recours introuvable');
+        error.status = 404;
+        throw error;
+    }
+
+    if (recours.status !== 'pending') {
+        const error = new Error('Seuls les recours en attente peuvent etre assignes');
+        error.status = 400;
+        throw error;
+    }
+
+    const result = await db.query(
+        `UPDATE recours
+         SET assigned_professor_id = $1,
+             status = 'assigned',
+             assigned_at = CURRENT_TIMESTAMP,
+             updated_at = CURRENT_TIMESTAMP
+         WHERE id = $2
+         RETURNING id`,
+        [professorId, recoursId]
+    );
+
+    return result.rowCount > 0;
+}
+
+async function listRecoursForProfessor(professorId) {
+    const result = await db.query(
+        `SELECT r.id, r.course_code, r.course_title, r.evaluation_types, r.justification,
+                r.proof_name, r.proof_path, r.status, r.professor_response,
+                r.professor_decision, r.assigned_at, r.treated_at, r.published_at,
+                r.created_at, u.matricule, u.nom, u.post_nom, u.prenom,
+                u.departement, u.promotion
+         FROM recours r
+         JOIN users u ON u.id = r.user_id
+         WHERE r.assigned_professor_id = $1
+         ORDER BY r.assigned_at DESC, r.created_at DESC, r.id DESC`,
+        [professorId]
+    );
+
+    return result.rows.map((recours) => ({
+        ...recours,
+        evaluation_types: JSON.parse(recours.evaluation_types || '[]'),
+    }));
+}
+
+async function submitProfessorTreatment(recoursId, professorId, payload) {
+    const decision = String(payload.decision || '').trim();
+    const response = String(payload.response || payload.professorResponse || '').trim();
+
+    if (!decision || !response) {
+        const error = new Error('Decision et reponse sont obligatoires');
+        error.status = 400;
+        throw error;
+    }
+
+    const recours = await findRecoursById(recoursId);
+    if (!recours) {
+        const error = new Error('Recours introuvable');
+        error.status = 404;
+        throw error;
+    }
+
+    if (Number(recours.assigned_professor_id) !== Number(professorId)) {
+        const error = new Error('Ce recours ne vous est pas assigne');
+        error.status = 403;
+        throw error;
+    }
+
+    if (recours.status !== 'assigned') {
+        const error = new Error('Ce recours a deja ete soumis a l administration');
+        error.status = 400;
+        throw error;
+    }
+
+    const result = await db.query(
+        `UPDATE recours
+         SET professor_decision = $1,
+             professor_response = $2,
+             status = 'treated',
+             treated_at = CURRENT_TIMESTAMP,
+             updated_at = CURRENT_TIMESTAMP
+         WHERE id = $3
+         RETURNING id`,
+        [decision, response, recoursId]
+    );
+
+    return result.rowCount > 0;
+}
+
+async function publishRecoursToStudent(recoursId) {
+    const recours = await findRecoursById(recoursId);
+    if (!recours) {
+        const error = new Error('Recours introuvable');
+        error.status = 404;
+        throw error;
+    }
+
+    if (recours.status !== 'treated') {
+        const error = new Error('Seuls les recours traites par un professeur peuvent etre publies');
+        error.status = 400;
+        throw error;
+    }
+
+    const result = await db.query(
+        `UPDATE recours
+         SET status = 'published',
+             published_at = CURRENT_TIMESTAMP,
+             updated_at = CURRENT_TIMESTAMP
+         WHERE id = $1
+         RETURNING id`,
+        [recoursId]
+    );
+
+    return result.rowCount > 0;
+}
+
+async function updateRecoursStatus(recoursId, status) {
+    const allowedStatuses = ['validated', 'rejected'];
+    if (!allowedStatuses.includes(status)) {
+        const error = new Error('Statut invalide');
+        error.status = 400;
+        throw error;
+    }
+
+    const recours = await findRecoursById(recoursId);
+    if (!recours) {
+        const error = new Error('Recours introuvable');
+        error.status = 404;
+        throw error;
+    }
+
+    if (recours.status === 'published') {
+        const error = new Error('Un recours publie ne peut plus etre modifie');
+        error.status = 400;
+        throw error;
+    }
+
+    const result = await db.query(
+        status === 'validated'
+            ? `UPDATE recours
+               SET status = $1, published_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
+               WHERE id = $2
+               RETURNING id`
+            : `UPDATE recours
+               SET status = $1, updated_at = CURRENT_TIMESTAMP
+               WHERE id = $2
+               RETURNING id`,
+        [status, recoursId]
+    );
+
+    return result.rowCount > 0;
+}
+
+function normalizeCourseTeacher(value) {
+    if (Array.isArray(value)) {
+        const error = new Error('Un cours ne peut avoir qu un seul enseignant responsable');
+        error.status = 400;
+        throw error;
+    }
+
+    const teacherName = String(value || '').trim();
+
+    if (!teacherName) {
+        const error = new Error('Un enseignant responsable est obligatoire pour un cours');
+        error.status = 400;
+        throw error;
+    }
+
+    if (/[;,]/.test(teacherName)) {
+        const error = new Error('Un cours ne peut avoir qu un seul enseignant responsable');
+        error.status = 400;
+        throw error;
+    }
+
+    return teacherName;
+}
+
+function normalizeCoursePayload(payload) {
+    return {
+        code: String(payload.code || '').trim().toUpperCase(),
+        title: String(payload.title || payload.nom || '').trim(),
+        credits: payload.credits === '' || payload.credits === undefined ? null : Number(payload.credits),
+        departement: String(payload.departement || payload.dept || '').trim(),
+        teacherName: normalizeCourseTeacher(payload.teacherName || payload.enseignant),
+        promotions: normalizePromotionsList(payload.promotions || payload.promos, { required: true }),
+    };
+}
+
+async function listCourses() {
+    const result = await db.query(
+        `SELECT id, code, title, credits, departement, teacher_name, promotions, created_at, updated_at
+         FROM courses
+         ORDER BY code ASC`
+    );
+    return result.rows;
+}
+
+async function createCourse(payload) {
+    const course = normalizeCoursePayload(payload);
+    if (!course.code || !course.title) {
+        const error = new Error('Code et intitule du cours sont obligatoires');
+        error.status = 400;
+        throw error;
+    }
+
+    if (course.credits !== null && (!Number.isInteger(course.credits) || course.credits < 0)) {
+        const error = new Error('Le nombre de credits est invalide');
+        error.status = 400;
+        throw error;
+    }
+
+    const result = await db.query(
+        `INSERT INTO courses (code, title, credits, departement, teacher_name, promotions)
+         VALUES ($1, $2, $3, $4, $5, $6)
+         RETURNING id, code, title, credits, departement, teacher_name, promotions, created_at, updated_at`,
+        [course.code, course.title, course.credits, course.departement || null, course.teacherName, course.promotions || null]
+    );
+
+    return result.rows[0];
+}
+
+async function updateCourse(id, payload) {
+    const course = normalizeCoursePayload(payload);
+    if (!course.code || !course.title) {
+        const error = new Error('Code et intitule du cours sont obligatoires');
+        error.status = 400;
+        throw error;
+    }
+
+    const result = await db.query(
+        `UPDATE courses
+         SET code = $1, title = $2, credits = $3, departement = $4,
+             teacher_name = $5, promotions = $6, updated_at = CURRENT_TIMESTAMP
+         WHERE id = $7
+         RETURNING id, code, title, credits, departement, teacher_name, promotions, created_at, updated_at`,
+        [course.code, course.title, course.credits, course.departement || null, course.teacherName, course.promotions || null, id]
+    );
+
+    return result.rows[0] || null;
+}
+
+async function deleteCourse(id) {
+    const result = await db.query('DELETE FROM courses WHERE id = $1', [id]);
+    return result.rowCount > 0;
+}
+
+async function getAdminSettings() {
+    const result = await db.query('SELECT key, value FROM admin_settings');
+    const settings = {
+        announcement_message: 'La session des recours est ouverte du 25 mai au 05 juin 2026.',
+        recours_start_date: '',
+        recours_end_date: '',
+    };
+
+    for (const row of result.rows) {
+        settings[row.key] = row.value;
+    }
+
+    return settings;
+}
+
+function getTodayDateString() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+function getRecoursPeriodStatus(settings) {
+    const today = getTodayDateString();
+    const startDate = String(settings.recours_start_date || '').trim();
+    const endDate = String(settings.recours_end_date || '').trim();
+
+    if (startDate && today < startDate) {
+        return {
+            isOpen: false,
+            state: 'scheduled',
+            label: 'Planifiee',
+            reason: `La periode de depot commence le ${startDate}`,
+        };
+    }
+
+    if (endDate && today > endDate) {
+        return {
+            isOpen: false,
+            state: 'closed',
+            label: 'Fermee automatiquement',
+            reason: `La periode de depot est terminee depuis le ${endDate}`,
+        };
+    }
+
+    const reason = startDate || endDate
+        ? 'La periode de depot des recours est ouverte'
+        : 'La periode de depot est ouverte sans limite de date';
+
+    return {
+        isOpen: true,
+        state: 'open',
+        label: 'Ouverte automatiquement',
+        reason,
+    };
+}
+
+function isValidDateSetting(value) {
+    return value === '' || /^\d{4}-\d{2}-\d{2}$/.test(value);
+}
+
+function isUniqueConstraintError(err) {
+    return err && (err.code === '23505' || String(err.message || '').toUpperCase().includes('UNIQUE'));
+}
+
+async function setAdminSetting(key, value) {
+    await db.query(
+        `INSERT INTO admin_settings (key, value, updated_at)
+         VALUES ($1, $2, CURRENT_TIMESTAMP)
+         ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP`,
+        [key, String(value)]
+    );
 }
 
 async function seedDefaultUsers() {
@@ -414,8 +950,13 @@ app.get('/health', async (req, res) => {
     const dbAvailable = await databaseReady();
     res.json({
         status: 'ok',
-        database: dbAvailable ? 'sqlite' : 'demo-memory',
-        databasePath: db.databasePath || null,
+        database: dbAvailable ? 'postgresql' : 'unavailable',
+        databaseConfig: {
+            host: db.dbConfig.host,
+            port: db.dbConfig.port,
+            database: db.dbConfig.database,
+            user: db.dbConfig.user,
+        },
     });
 });
 
@@ -492,6 +1033,31 @@ app.get('/profile', authenticateToken, async (req, res) => {
     res.json(publicUser(user));
 });
 
+app.get('/api/settings/public', async (req, res) => {
+    try {
+        const settings = await getAdminSettings();
+        const period = getRecoursPeriodStatus(settings);
+        res.json({
+            announcement_message: settings.announcement_message,
+            recours_open: period.isOpen,
+            recours_start_date: settings.recours_start_date || '',
+            recours_end_date: settings.recours_end_date || '',
+            recours_status_message: period.reason,
+        });
+    } catch (err) {
+        res.status(500).json({ message: 'Erreur lors du chargement des parametres' });
+    }
+});
+
+app.get('/api/cours', authenticateToken, async (req, res) => {
+    try {
+        const courses = await listCourses();
+        res.json({ courses });
+    } catch (err) {
+        res.status(500).json({ message: 'Erreur lors du chargement des cours' });
+    }
+});
+
 app.put('/profile/password', authenticateToken, async (req, res) => {
     try {
         const currentPassword = String(req.body.currentPassword || '');
@@ -525,12 +1091,22 @@ app.get('/api/etudiant/all', authenticateToken, async (req, res) => {
 app.post('/api/etudiant/add', authenticateToken, requireRoles('admin', 'superadmin'), async (req, res) => {
     try {
         const requestedRole = req.body.role || 'etudiant';
+        const password = String(req.body.password || '');
+        const confirmPassword = String(req.body.confirmPassword || '');
 
         if (['admin', 'superadmin'].includes(requestedRole) && req.user.role !== 'superadmin') {
             return res.status(403).json({ message: 'Seul le superadmin peut creer un compte administrateur' });
         }
 
-        const user = await createUser({ ...req.body, role: requestedRole });
+        if (!password || password.length < 6) {
+            return res.status(400).json({ message: 'Le mot de passe doit contenir au moins 6 caracteres' });
+        }
+
+        if (password !== confirmPassword) {
+            return res.status(400).json({ message: 'Les mots de passe ne correspondent pas' });
+        }
+
+        const user = await createUser({ ...req.body, role: requestedRole, password });
         res.status(201).json({ message: 'Utilisateur ajoute avec succes', user });
     } catch (err) {
         res.status(err.status || 500).json({ message: err.message || 'Erreur lors de la creation' });
@@ -557,9 +1133,30 @@ app.put('/api/etudiant/users/update', authenticateToken, requireRoles('admin', '
 });
 
 app.post('/api/etudiant/users/reset-password', authenticateToken, requireRoles('admin', 'superadmin'), async (req, res) => {
-    const done = await resetPassword(req.body.matricule);
+    const newPassword = String(req.body.password || '');
+    const confirmPassword = String(req.body.confirmPassword || '');
+
+    if (!newPassword || newPassword.length < 6) {
+        return res.status(400).json({ message: 'Le nouveau mot de passe doit contenir au moins 6 caracteres' });
+    }
+
+    if (newPassword !== confirmPassword) {
+        return res.status(400).json({ message: 'Les mots de passe ne correspondent pas' });
+    }
+
+    const done = await resetPassword(req.body.matricule, newPassword);
     if (!done) return res.status(404).json({ message: 'Utilisateur introuvable' });
-    res.json({ message: `Mot de passe reinitialise a : ${DEFAULT_PASSWORD}` });
+    res.json({ message: 'Mot de passe reinitialise avec succes' });
+});
+
+app.delete('/api/etudiant/users/:id', authenticateToken, requireRoles('admin', 'superadmin'), async (req, res) => {
+    try {
+        const done = await deleteUser(req.params.id, req.user.id);
+        if (!done) return res.status(404).json({ message: 'Utilisateur introuvable' });
+        res.json({ message: 'Utilisateur supprime avec succes' });
+    } catch (err) {
+        res.status(err.status || 500).json({ message: err.message || 'Erreur lors de la suppression' });
+    }
 });
 
 app.get('/api/admin/recours', authenticateToken, requireRoles('admin', 'superadmin'), async (req, res) => {
@@ -568,6 +1165,163 @@ app.get('/api/admin/recours', authenticateToken, requireRoles('admin', 'superadm
         res.json({ recours });
     } catch (err) {
         res.status(500).json({ message: 'Erreur lors du chargement des recours' });
+    }
+});
+
+app.post('/api/admin/recours/:id/status', authenticateToken, requireRoles('admin', 'superadmin'), async (req, res) => {
+    try {
+        const recoursId = Number(req.params.id);
+        const status = String(req.body.status || '').trim();
+        if (!recoursId) return res.status(400).json({ message: 'Recours invalide' });
+
+        await updateRecoursStatus(recoursId, status);
+        res.json({ message: status === 'validated' ? 'Recours valide avec succes' : 'Recours rejete avec succes' });
+    } catch (err) {
+        res.status(err.status || 500).json({ message: err.message || 'Erreur lors de la mise a jour du recours' });
+    }
+});
+
+app.get('/api/admin/settings', authenticateToken, requireRoles('admin', 'superadmin'), async (req, res) => {
+    try {
+        const settings = await getAdminSettings();
+        res.json({ settings, recours_period: getRecoursPeriodStatus(settings) });
+    } catch (err) {
+        res.status(500).json({ message: 'Erreur lors du chargement des parametres' });
+    }
+});
+
+app.put('/api/admin/settings', authenticateToken, requireRoles('admin', 'superadmin'), async (req, res) => {
+    try {
+        const currentSettings = await getAdminSettings();
+        const nextStartDate = Object.prototype.hasOwnProperty.call(req.body, 'recours_start_date')
+            ? String(req.body.recours_start_date || '').trim()
+            : currentSettings.recours_start_date;
+        const nextEndDate = Object.prototype.hasOwnProperty.call(req.body, 'recours_end_date')
+            ? String(req.body.recours_end_date || '').trim()
+            : currentSettings.recours_end_date;
+
+        if (!isValidDateSetting(nextStartDate) || !isValidDateSetting(nextEndDate)) {
+            return res.status(400).json({ message: 'Format de date invalide' });
+        }
+
+        if (nextStartDate && nextEndDate && nextStartDate > nextEndDate) {
+            return res.status(400).json({ message: 'La date de debut doit etre anterieure ou egale a la date de fin' });
+        }
+
+        if (Object.prototype.hasOwnProperty.call(req.body, 'announcement_message')) {
+            await setAdminSetting('announcement_message', String(req.body.announcement_message || '').trim());
+        }
+
+        if (Object.prototype.hasOwnProperty.call(req.body, 'recours_start_date')) {
+            await setAdminSetting('recours_start_date', nextStartDate);
+        }
+
+        if (Object.prototype.hasOwnProperty.call(req.body, 'recours_end_date')) {
+            await setAdminSetting('recours_end_date', nextEndDate);
+        }
+
+        const settings = await getAdminSettings();
+        res.json({ message: 'Parametres mis a jour avec succes', settings, recours_period: getRecoursPeriodStatus(settings) });
+    } catch (err) {
+        res.status(500).json({ message: 'Erreur lors de la mise a jour des parametres' });
+    }
+});
+
+app.get('/api/admin/cours', authenticateToken, requireRoles('admin', 'superadmin'), async (req, res) => {
+    try {
+        const courses = await listCourses();
+        res.json({ courses });
+    } catch (err) {
+        res.status(500).json({ message: 'Erreur lors du chargement des cours' });
+    }
+});
+
+app.post('/api/admin/cours', authenticateToken, requireRoles('admin', 'superadmin'), async (req, res) => {
+    try {
+        const course = await createCourse(req.body);
+        res.status(201).json({ message: 'Cours ajoute avec succes', course });
+    } catch (err) {
+        const isUniqueError = isUniqueConstraintError(err);
+        res.status(err.status || (isUniqueError ? 409 : 500)).json({ message: isUniqueError ? 'Ce code de cours existe deja' : (err.message || 'Erreur lors de la creation du cours') });
+    }
+});
+
+app.put('/api/admin/cours/:id', authenticateToken, requireRoles('admin', 'superadmin'), async (req, res) => {
+    try {
+        const course = await updateCourse(Number(req.params.id), req.body);
+        if (!course) return res.status(404).json({ message: 'Cours introuvable' });
+        res.json({ message: 'Cours modifie avec succes', course });
+    } catch (err) {
+        const isUniqueError = isUniqueConstraintError(err);
+        res.status(err.status || (isUniqueError ? 409 : 500)).json({ message: isUniqueError ? 'Ce code de cours existe deja' : (err.message || 'Erreur lors de la modification du cours') });
+    }
+});
+
+app.delete('/api/admin/cours/:id', authenticateToken, requireRoles('admin', 'superadmin'), async (req, res) => {
+    try {
+        const done = await deleteCourse(Number(req.params.id));
+        if (!done) return res.status(404).json({ message: 'Cours introuvable' });
+        res.json({ message: 'Cours supprime avec succes' });
+    } catch (err) {
+        res.status(500).json({ message: 'Erreur lors de la suppression du cours' });
+    }
+});
+
+app.get('/api/admin/professeurs', authenticateToken, requireRoles('admin', 'superadmin'), async (req, res) => {
+    try {
+        const professeurs = await listProfessors();
+        res.json({ professeurs });
+    } catch (err) {
+        res.status(500).json({ message: 'Erreur lors du chargement des professeurs' });
+    }
+});
+
+app.post('/api/admin/recours/:id/assigner', authenticateToken, requireRoles('admin', 'superadmin'), async (req, res) => {
+    try {
+        const recoursId = Number(req.params.id);
+        const professorId = Number(req.body.professorId || req.body.assignedProfessorId);
+
+        if (!recoursId || !professorId) {
+            return res.status(400).json({ message: 'Recours et professeur sont obligatoires' });
+        }
+
+        await assignRecoursToProfessor(recoursId, professorId);
+        res.json({ message: 'Recours assigne au professeur avec succes' });
+    } catch (err) {
+        res.status(err.status || 500).json({ message: err.message || 'Erreur lors de l assignation' });
+    }
+});
+
+app.post('/api/admin/recours/:id/publier', authenticateToken, requireRoles('admin', 'superadmin'), async (req, res) => {
+    try {
+        const recoursId = Number(req.params.id);
+        if (!recoursId) return res.status(400).json({ message: 'Recours invalide' });
+
+        await publishRecoursToStudent(recoursId);
+        res.json({ message: 'Reponse publiee a l etudiant avec succes' });
+    } catch (err) {
+        res.status(err.status || 500).json({ message: err.message || 'Erreur lors de la publication' });
+    }
+});
+
+app.get('/api/professeur/recours', authenticateToken, requireRoles('enseignant'), async (req, res) => {
+    try {
+        const recours = await listRecoursForProfessor(req.user.id);
+        res.json({ recours });
+    } catch (err) {
+        res.status(500).json({ message: 'Erreur lors du chargement des recours assignes' });
+    }
+});
+
+app.post('/api/professeur/recours/:id/traiter', authenticateToken, requireRoles('enseignant'), async (req, res) => {
+    try {
+        const recoursId = Number(req.params.id);
+        if (!recoursId) return res.status(400).json({ message: 'Recours invalide' });
+
+        await submitProfessorTreatment(recoursId, req.user.id, req.body);
+        res.json({ message: 'Reponse transmise a l administration avec succes' });
+    } catch (err) {
+        res.status(err.status || 500).json({ message: err.message || 'Erreur lors du traitement du recours' });
     }
 });
 
@@ -580,8 +1334,14 @@ app.get('/api/recours/me', authenticateToken, async (req, res) => {
     }
 });
 
-app.post('/api/recours', authenticateToken, uploadRecoursFiles, async (req, res) => {
+app.post('/api/recours', authenticateToken, requireRoles('etudiant'), uploadRecoursFiles, async (req, res) => {
     try {
+        const settings = await getAdminSettings();
+        const period = getRecoursPeriodStatus(settings);
+        if (!period.isOpen) {
+            return res.status(403).json({ message: period.reason });
+        }
+
         const courses = parseCoursesPayload(req.body.courses);
         const filesByField = new Map((req.files || []).map((file) => [file.fieldname, file]));
 
@@ -589,11 +1349,21 @@ app.post('/api/recours', authenticateToken, uploadRecoursFiles, async (req, res)
             return res.status(400).json({ message: 'Aucun cours a soumettre' });
         }
 
+        const existingCourses = await listCourses();
+        const coursesByCode = new Map(existingCourses.map((course) => [String(course.code).trim().toUpperCase(), course]));
+
         const created = [];
         for (const [index, course] of courses.entries()) {
+            const storedCourse = coursesByCode.get(String(course.courseCode || '').trim().toUpperCase());
+            if (!storedCourse) {
+                return res.status(400).json({ message: `Le cours ${course.courseCode || ''} n existe pas dans la base de donnees` });
+            }
+
             const file = filesByField.get(`proof_${index}`);
             created.push(await createRecours(req.user.id, {
                 ...course,
+                courseCode: storedCourse.code,
+                courseTitle: storedCourse.title,
                 proofName: file ? file.originalname : course.proofName,
                 proofPath: file ? `/uploads/recours/${file.filename}` : '',
             }));
@@ -628,7 +1398,8 @@ app.get('/', (req, res) => {
 const PORT = Number(process.env.PORT || 3001);
 const HOST = process.env.HOST || '127.0.0.1';
 
-seedDefaultUsers()
+db.runMigrations()
+    .then(() => seedDefaultUsers())
     .then(() => ensureSuperAdmin())
     .then(() => {
         app.listen(PORT, HOST, (err) => {
@@ -638,10 +1409,10 @@ seedDefaultUsers()
             }
 
             console.log(`Serveur opérationnel sur http://${HOST}:${PORT}`);
-            console.log(`Base SQLite : ${db.databasePath}`);
+            console.log(`Base PostgreSQL : ${db.dbConfig.database} (${db.dbConfig.host}:${db.dbConfig.port})`);
         });
     })
     .catch((err) => {
-        console.error('Impossible d initialiser la base SQLite', err);
+        console.error('Impossible d initialiser la base PostgreSQL', err);
         process.exit(1);
     });
